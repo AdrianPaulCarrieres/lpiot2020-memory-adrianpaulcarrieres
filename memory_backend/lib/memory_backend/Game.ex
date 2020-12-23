@@ -3,7 +3,7 @@ defmodule MemoryBackend.Game do
     Définition d'une partie.
     """
 
-    defstruct identifiant: "000000", set: "", etat: "en_attente", joueurs: [], liste_carte: [], nombre_retournement: 0, nombre_tours: 0
+    defstruct identifiant: "000000", set: "", joueurs: [], liste_carte: [], nombre_retournement: 0, nombre_tours: 0
     
     @doc """
     Ajouter un joueur à une partie.
