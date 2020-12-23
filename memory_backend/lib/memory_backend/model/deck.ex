@@ -1,10 +1,10 @@
-defmodule MemoryBackend.Model.Set do
+defmodule MemoryBackend.Model.Deck do
     use Ecto.Schema
 
-    schema "set" do
+    schema "deck" do
         field :label, :string
 
-        has_many :carte, MemoryBackend.Model.Carte
+        has_many :card, MemoryBackend.Model.Card
         has_many :score, MemoryBackend.Model.Score
     end
 end

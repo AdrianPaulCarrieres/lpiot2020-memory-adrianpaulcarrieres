@@ -1,8 +1,8 @@
-defmodule MemoryBackend.Repo.Migrations.CreateSet do
+defmodule MemoryBackend.Repo.Migrations.CreateDeck do
   use Ecto.Migration
 
   def change do
-    create table(:set) do
+    create table(:deck) do
       add :label, :string
     end
   end

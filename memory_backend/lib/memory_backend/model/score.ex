@@ -4,6 +4,6 @@ defmodule MemoryBackend.Model.Score do
     schema "score" do
         field :score, :integer
 
-        belongs_to :set, MemoryBackend.Model.Set
+        belongs_to :deck, MemoryBackend.Model.Deck
     end
 end
