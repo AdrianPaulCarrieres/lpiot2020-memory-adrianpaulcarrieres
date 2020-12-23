@@ -27,4 +27,21 @@ defmodule MemoryBackend.Game do
                 {:ok, partie}
         end   
     end
+
+    @doc """
+    Création de la liste de carte
+    """
+    def populate_cards_list(partie)
+    
+    def populate_cards_list(partie = %MemoryBackend.Game{set: "facile"}) do
+        IO.puts "facile"
+    end
+
+    def populate_cards_list(partie = %MemoryBackend.Game{set: "moyen"}) do
+        IO.puts "moyen"
+    end
+
+    def populate_cards_list(partie = %MemoryBackend.Game{set: "difficile"}) do
+        IO.puts "difficile"
+    end
 end
