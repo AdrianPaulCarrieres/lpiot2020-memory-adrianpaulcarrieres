@@ -3,7 +3,7 @@ defmodule MemoryBackend.Repo.Migrations.CreateDeck do
 
   def change do
     create table(:deck) do
-      add :label, :string
+      add :theme, :string
     end
   end
 end
