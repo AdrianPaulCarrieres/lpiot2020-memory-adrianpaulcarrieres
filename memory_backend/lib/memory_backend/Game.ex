@@ -28,10 +28,19 @@ defmodule MemoryBackend.Game do
     end
 
     @doc """
-    Création de la liste de carte
+    Populate the given game's cards list.
+
+    It takes them from the associated deck in the database, duplicate and create a map for each card, with the image and the flipped state.
     """
     def populate_cards_list(game = %MemoryBackend.Game{deck: deck}) do
-        MemoryBackend.Model.Deck.get_associated_cards(deck)
-        IO.puts "facile"
+        cards = MemoryBackend.Model.Deck.get_associated_cards(deck).card
+        
+        cards_list = Enum.map(cards, fn x -> [%{image => x.image, flipped => 0}, %{image => x.image, flipped => 0}]  end) 
+        |> List.flatten 
+        |> Enum.shuffle
+
+        game = %MemoryBackend.Game{game | cards_list: cards_list}
+
+        {:ok, game}
     end
 end
