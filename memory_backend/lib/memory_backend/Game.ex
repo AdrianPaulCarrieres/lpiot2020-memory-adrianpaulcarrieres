@@ -1,47 +1,37 @@
 defmodule MemoryBackend.Game do
     @moduledoc """
-    Définition d'une partie.
+    Defining game.
     """
 
-    defstruct identifiant: "000000", set: "", joueurs: [], liste_carte: [], nombre_retournement: 0, nombre_tours: 0
+    defstruct id: "000000", deck: %MemoryBackend.Model.Deck{}, players: [], cards_list: [], flipped_count: 0, turn_count: 0
     
     @doc """
-    Ajouter un joueur à une partie.
-
-    Le pseudo du joueur doit y être unique.
+    Add player to a game. 
+    Player pseudo should be unique.
 
     ## Examples
 
-        {:ok, partie} = MemoryBackend.Game.join(%MemoryBackend.Game{}, 'Adrian')
-        MemoryBackend.Game.join(partie, 'Adrian')                                
-        {:error, "Joueur Adrian deja present"}
+        iex> {:ok, game} = MemoryBackend.Game.join(%MemoryBackend.Game{}, 'Adrian')
+        iex> MemoryBackend.Game.join(game, 'Adrian')                                
+        {:error, "Player Adrian already present in this game."}
 
     """
-    def join(partie = %MemoryBackend.Game{}, joueur) do
-        liste_joueurs = partie.joueurs
-        case Enum.any?(liste_joueurs, &(&1 == joueur)) do
+    def join(game = %MemoryBackend.Game{}, player) do
+        players_list = game.players
+        case Enum.any?(players_list, &(&1 == player)) do
             true -> 
-                {:error, "Joueur #{joueur} deja present"}
+                {:error, "Player #{player} already present in this game."}
             false -> 
-                partie = %MemoryBackend.Game{partie | joueurs: liste_joueurs ++ [joueur] }
-                {:ok, partie}
+                game = %MemoryBackend.Game{game | players: players_list ++ [player] }
+                {:ok, game}
         end   
     end
 
     @doc """
     Création de la liste de carte
     """
-    def populate_cards_list(partie)
-    
-    def populate_cards_list(partie = %MemoryBackend.Game{set: "facile"}) do
+    def populate_cards_list(game = %MemoryBackend.Game{deck: deck}) do
+        MemoryBackend.Model.Deck.get_associated_cards(deck)
         IO.puts "facile"
-    end
-
-    def populate_cards_list(partie = %MemoryBackend.Game{set: "moyen"}) do
-        IO.puts "moyen"
-    end
-
-    def populate_cards_list(partie = %MemoryBackend.Game{set: "difficile"}) do
-        IO.puts "difficile"
     end
 end
