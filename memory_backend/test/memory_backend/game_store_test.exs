@@ -4,7 +4,7 @@ defmodule MemoryBackend.GameStoreTest do
   test "add player to the game" do
     {:ok, game_store} = MemoryBackend.GameStore.start_link([])
 
-    game = MemoryBackend.GameStore.get game_store
+    game = MemoryBackend.GameStore.get(game_store)
     assert game == %MemoryBackend.Game{}
 
     {:ok, game} = MemoryBackend.Game.join(game, "Adrian")
