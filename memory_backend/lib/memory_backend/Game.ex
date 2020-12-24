@@ -8,7 +8,7 @@ defmodule MemoryBackend.Game do
             state: "stand-by",
             players: [],
             cards_list: [],
-            flipped_count: 0,
+            last_flipped_indexes: [],
             turn_count: 0
 
   @doc """
@@ -45,7 +45,7 @@ defmodule MemoryBackend.Game do
 
     cards_list =
       Enum.map(cards, fn x ->
-        [%{"image" => x.image, "flipped" => 0}, %{"image" => x.image, "flipped" => 0}]
+        [%{"id" => x.id, "flipped" => 0}, %{"id" => x.id, "flipped" => 0}]
       end)
       |> List.flatten()
       |> Enum.shuffle()
