@@ -12,13 +12,13 @@ defmodule MemoryBackend.Game do
             turn_count: 0
 
   @doc """
-  Add player to a game. 
+  Add player to a game.
   Player pseudo should be unique.
 
   ## Examples
 
       iex> {:ok, game} = MemoryBackend.Game.join(%MemoryBackend.Game{}, 'Adrian')
-      iex> MemoryBackend.Game.join(game, 'Adrian')                                
+      iex> MemoryBackend.Game.join(game, 'Adrian')
       {:error, "Player Adrian already present in this game."}
 
   """
@@ -50,8 +50,6 @@ defmodule MemoryBackend.Game do
       |> List.flatten()
       |> Enum.shuffle()
 
-    game = %MemoryBackend.Game{game | cards_list: cards_list}
-
-    {:ok, game}
+    %MemoryBackend.Game{game | cards_list: cards_list}
   end
 end
