@@ -9,6 +9,8 @@ defmodule MemoryBackend.Application do
     children = [
       # Start the Ecto repository
       MemoryBackend.Repo,
+      # Start our registry process
+      MemoryBackend.Index,
       # Start the Telemetry supervisor
       MemoryBackendWeb.Telemetry,
       # Start the PubSub system

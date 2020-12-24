@@ -8,17 +8,17 @@ defmodule MemoryBackend.Game do
             state: "stand-by",
             players: [],
             cards_list: [],
-            flipped_count: 0,
+            last_flipped_indexes: [],
             turn_count: 0
 
   @doc """
-  Add player to a game. 
+  Add player to a game.
   Player pseudo should be unique.
 
   ## Examples
 
       iex> {:ok, game} = MemoryBackend.Game.join(%MemoryBackend.Game{}, 'Adrian')
-      iex> MemoryBackend.Game.join(game, 'Adrian')                                
+      iex> MemoryBackend.Game.join(game, 'Adrian')
       {:error, "Player Adrian already present in this game."}
 
   """
@@ -45,13 +45,11 @@ defmodule MemoryBackend.Game do
 
     cards_list =
       Enum.map(cards, fn x ->
-        [%{"image" => x.image, "flipped" => 0}, %{"image" => x.image, "flipped" => 0}]
+        [%{"id" => x.id, "flipped" => 0}, %{"id" => x.id, "flipped" => 0}]
       end)
       |> List.flatten()
       |> Enum.shuffle()
 
-    game = %MemoryBackend.Game{game | cards_list: cards_list}
-
-    {:ok, game}
+    %MemoryBackend.Game{game | cards_list: cards_list}
   end
 end
