@@ -2,7 +2,7 @@ defmodule MemoryBackend.Index do
   @moduledoc """
   API of our GenServer serving as a game registry.
   """
-  @server Index.Server
+  @server MemoryBackend.Index.Server
 
   @doc """
   Start the GenServer
