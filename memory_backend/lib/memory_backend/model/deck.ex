@@ -8,11 +8,7 @@ defmodule MemoryBackend.Model.Deck do
         has_many :card, MemoryBackend.Model.Card
         has_many :score, MemoryBackend.Model.Score
     end
-
-    def get_all_theme() do
-        MemoryBackend.Repo.all from d in MemoryBackend.Model.Deck
-    end
-
+    
     def get_associated_cards(theme) do
         MemoryBackend.Repo.one from d in MemoryBackend.Model.Deck, where: d.label == ^theme, preload: [:card]
     end
