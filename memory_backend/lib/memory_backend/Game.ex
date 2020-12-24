@@ -3,7 +3,7 @@ defmodule MemoryBackend.Game do
     Defining game.
     """
 
-    defstruct id: "000000", deck: %MemoryBackend.Model.Deck{}, players: [], cards_list: [], flipped_count: 0, turn_count: 0
+    defstruct id: "000000", deck: %MemoryBackend.Model.Deck{}, state: "stand-by", players: [], cards_list: [], flipped_count: 0, turn_count: 0
     
     @doc """
     Add player to a game. 
@@ -35,7 +35,7 @@ defmodule MemoryBackend.Game do
     def populate_cards_list(game = %MemoryBackend.Game{deck: deck}) do
         cards = MemoryBackend.Model.Deck.get_associated_cards(deck).card
         
-        cards_list = Enum.map(cards, fn x -> [%{image => x.image, flipped => 0}, %{image => x.image, flipped => 0}]  end) 
+        cards_list = Enum.map(cards, fn x -> [%{"image" => x.image, "flipped" => 0}, %{"image" => x.image, "flipped" => 0}]  end) 
         |> List.flatten 
         |> Enum.shuffle
 
