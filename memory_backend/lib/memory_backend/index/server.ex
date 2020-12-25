@@ -136,4 +136,22 @@ defmodule MemoryBackend.Index.Server do
       {:noreply, games}
     end
   end
+
+  @doc """
+  Processes crash and normal termination of GameStores
+  """
+  @impl true
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, {games, refs}) do
+    {game_store, refs} = Map.pop(refs, ref)
+    games = Map.delete(games, game_store)
+    {:noreply, {games, refs}}
+  end
+
+  @doc """
+  Discards unknow messages.
+  """
+  @impl true
+  def handle_info(_msg, state) do
+    {:noreply, state}
+  end
 end
