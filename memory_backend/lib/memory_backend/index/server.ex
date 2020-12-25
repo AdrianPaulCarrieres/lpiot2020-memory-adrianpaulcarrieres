@@ -136,11 +136,17 @@ defmodule MemoryBackend.Index.Server do
           game
         end
 
-      GameStore.set(game_store, game)
+      # Send itself a message to stop the inactive game
+      if(game.consecutive_afk_players == length(game.players)) do
+        send(self(), {:stop_game, id})
+      else
+        GameStore.set(game_store, game)
 
-      # put the timer again
-      Process.send_after(self(), {:afk_player, {id, game.turn_count}}, 30000)
-      Logger.info("Rearming timer for game: #{inspect(id)}")
+        # put the timer again
+        Process.send_after(self(), {:afk_player, {id, game.turn_count}}, 30000)
+        Logger.info("Rearming timer for game: #{inspect(id)}")
+      end
+
       {:noreply, state}
     end
   end

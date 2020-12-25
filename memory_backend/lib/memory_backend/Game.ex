@@ -10,7 +10,8 @@ defmodule MemoryBackend.Game do
             cards_list: [],
             last_flipped_indexes: {},
             turn_count: 0,
-            flipped_count: 0
+            flipped_count: 0,
+            consecutive_afk_players: 0
 
   @doc """
   Add player to a game.
