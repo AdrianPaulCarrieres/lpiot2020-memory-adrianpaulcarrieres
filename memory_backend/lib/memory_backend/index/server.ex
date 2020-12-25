@@ -3,8 +3,10 @@ defmodule MemoryBackend.Index.Server do
   GenServer callbacks
   """
   use GenServer
+  require Logger
   alias MemoryBackend.Index.Impl
   alias MemoryBackend.GameStore
+  alias MemoryBackend.Game
 
   @impl true
   @doc """
@@ -28,6 +30,80 @@ defmodule MemoryBackend.Index.Server do
 
   @impl true
   def handle_call({:find_game, id}, _from, games) do
-    {:reply, Map.has_key?(games, id), games}
+    if Map.has_key?(games, id) do
+      {:reply, GameStore.get(Map.get(games, id)), games}
+    else
+      {:reply, "No game registered with this id", games}
+    end
+  end
+
+  @impl true
+  def handle_call({:join_game, id, player}, _from, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+
+      result =
+        GameStore.get(game_store)
+        |> Game.join(player)
+
+      case result do
+        {:ok, game} ->
+          GameStore.set(game_store, game)
+          {:reply, {:ok, game}, games}
+
+        {:error, msg} ->
+          {:reply, {:error, msg}, games}
+      end
+    end
+  end
+
+  @impl true
+  def handle_call({:start_game, id}, _from, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+
+      game =
+        GameStore.get(game_store)
+        |> Impl.start_game()
+
+      GameStore.set(game_store, game)
+      Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+      Logger.info("Arming a new timer for game: #{inspect(id)}")
+
+      {:reply, game, games}
+    else
+      {:reply, "No game registered with this id", games}
+    end
+  end
+
+  @impl true
+  def handle_info({:afk_player, {id, old_turn}}, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+      game = GameStore.get(game_store)
+      new_turn = game.turn_count
+
+      # if(old_turn == new_turn) do
+      #  game = Impl.next_turn(game)
+      # Logger.info("Game updated #{inspect(game)}")
+      #  GameStore.set(game_store, game)
+      # new_turn = new_turn + 1
+      # end
+
+      game =
+        if old_turn == new_turn do
+          Impl.next_turn(game)
+        else
+          game
+        end
+
+      Logger.info("Game updated #{inspect(game)}")
+      GameStore.set(game_store, game)
+
+      # put the timer again
+      Process.send_after(self(), {:afk_player, {id, game.turn_count}}, 30000)
+      Logger.info("Rearming timer for game: #{inspect(id)}")
+      {:noreply, games}
+    end
   end
 end

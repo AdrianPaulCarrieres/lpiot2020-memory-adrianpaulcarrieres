@@ -5,11 +5,12 @@ defmodule MemoryBackend.Game do
 
   defstruct id: "000000",
             deck: %MemoryBackend.Model.Deck{},
-            state: "stand-by",
+            state: :stand_by,
             players: [],
             cards_list: [],
-            last_flipped_indexes: [],
-            turn_count: 0
+            last_flipped_indexes: {},
+            turn_count: 0,
+            flipped_count: 0
 
   @doc """
   Add player to a game.
@@ -51,5 +52,9 @@ defmodule MemoryBackend.Game do
       |> Enum.shuffle()
 
     %MemoryBackend.Game{game | cards_list: cards_list}
+  end
+
+  def start_game(game = %MemoryBackend.Game{}) do
+    %MemoryBackend.Game{game | state: :ongoing}
   end
 end
