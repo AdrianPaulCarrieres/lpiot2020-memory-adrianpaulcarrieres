@@ -28,8 +28,7 @@ defmodule MemoryBackend.Index.Impl do
         }
       ) do
     turn_count = turn_count + 1
-    [active_player, player_list] = players
-    players = ([player_list] ++ [active_player]) |> List.flatten()
+    players = change_active_player(players)
 
     flipped_count = update_flipped_count(flipped_count, cards, {first_index, second_index})
 
@@ -53,8 +52,7 @@ defmodule MemoryBackend.Index.Impl do
         }
       ) do
     turn_count = turn_count + 1
-    [active_player, player_list] = players
-    players = ([player_list] ++ [active_player]) |> List.flatten()
+    players = change_active_player(players)
 
     flipped_index = {}
 
@@ -64,6 +62,11 @@ defmodule MemoryBackend.Index.Impl do
         players: players,
         last_flipped_indexes: flipped_index
     }
+  end
+
+  def change_active_player(players) do
+    [active_player | player_list] = players
+    player_list ++ [active_player]
   end
 
   def compare_cards(cards = [], {first_index, second_index}) do
