@@ -104,7 +104,7 @@ defmodule MemoryBackend.Index.Server do
 
       game =
         if old_turn == new_turn do
-          Impl.next_turn(game)
+          Impl.skip_turn(game)
         else
           game
         end
