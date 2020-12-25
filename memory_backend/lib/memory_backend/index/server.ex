@@ -5,6 +5,7 @@ defmodule MemoryBackend.Index.Server do
   use GenServer
   alias MemoryBackend.Index.Impl
   alias MemoryBackend.GameStore
+  alias MemoryBackend.Game
 
   @impl true
   @doc """
@@ -28,6 +29,45 @@ defmodule MemoryBackend.Index.Server do
 
   @impl true
   def handle_call({:find_game, id}, _from, games) do
-    {:reply, Map.has_key?(games, id), games}
+    if Map.has_key?(games, id) do
+      {:reply, GameStore.get(Map.get(games, id)), games}
+    else
+      {:reply, "No game registered with this id", games}
+    end
+  end
+
+  @impl true
+  def handle_call({:join_game, id, player}, _from, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+
+      result =
+        GameStore.get(game_store)
+        |> Game.join(player)
+
+      case result do
+        {:ok, game} ->
+          GameStore.set(game_store, game)
+          {:reply, {:ok, game}, games}
+
+        {:error, msg} ->
+          {:reply, {:error, msg}, games}
+      end
+    end
+  end
+
+  @impl true
+  def handle_call({:start_game, id}, _from, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+
+      game =
+        GameStore.get(game_store)
+        |> Impl.start_game()
+
+      GameStore.set(game_store, game)
+
+      {:reply, game, games}
+    end
   end
 end

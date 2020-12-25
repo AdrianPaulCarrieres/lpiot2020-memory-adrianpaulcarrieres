@@ -13,4 +13,8 @@ defmodule MemoryBackend.Index.Impl do
     %Game{id: id, deck: deck, players: [player]}
     |> Game.populate_cards_list()
   end
+
+  def start_game(game = %Game{}) do
+    Game.start_game(game)
+  end
 end
