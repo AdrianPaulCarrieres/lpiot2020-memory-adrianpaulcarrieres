@@ -108,6 +108,8 @@ defmodule MemoryBackend.Index.Server do
         {:ok, {:won, game}} ->
           GameStore.set(game_store, game)
           score = Impl.end_game(game)
+          # Stop the game after a few minutes
+          Process.send_after(self(), {:stop_game, id}, 60000)
           {:reply, {:ok, {:won, score}}, state}
 
         {:error, msg} ->
@@ -139,6 +141,18 @@ defmodule MemoryBackend.Index.Server do
       # put the timer again
       Process.send_after(self(), {:afk_player, {id, game.turn_count}}, 30000)
       Logger.info("Rearming timer for game: #{inspect(id)}")
+      {:noreply, state}
+    end
+  end
+
+  @impl true
+  def handle_info({:stop_game, id}, state) do
+    {games, _} = state
+
+    if Map.has_key?(games, id) do
+      Map.get(games, id)
+      |> Agent.stop()
+
       {:noreply, state}
     end
   end
