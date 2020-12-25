@@ -41,4 +41,8 @@ defmodule MemoryBackend.Index do
   def start_game(id) do
     GenServer.call(@server, {:start_game, id})
   end
+
+  def flip_card(id, active_player, card_index, turn) do
+    GenServer.call(@server, {:play_turn, id, active_player, card_index, turn})
+  end
 end

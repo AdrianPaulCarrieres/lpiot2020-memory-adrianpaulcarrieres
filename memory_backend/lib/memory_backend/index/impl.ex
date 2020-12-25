@@ -48,9 +48,10 @@ defmodule MemoryBackend.Index.Impl do
         game = %Game{
           turn_count: turn_count,
           players: players,
-          last_flipped_indexes: {}
+          last_flipped_indexes: last_flipped_indexes
         }
-      ) do
+      )
+      when tuple_size(last_flipped_indexes) == 0 do
     turn_count = turn_count + 1
     players = change_active_player(players)
 
@@ -62,6 +63,57 @@ defmodule MemoryBackend.Index.Impl do
         players: players,
         last_flipped_indexes: flipped_index
     }
+  end
+
+  def next_turn(
+        game = %Game{
+          last_flipped_indexes: last_flipped_indexes
+        }
+      )
+      when tuple_size(last_flipped_indexes) == 0 do
+    game
+  end
+
+  def play_turn(
+        game = %Game{
+          players: players,
+          cards_list: cards,
+          last_flipped_indexes: last_flipped_indexes,
+          turn_count: turn_count
+        },
+        active_player,
+        card_index,
+        turn
+      ) do
+    if turn_count == turn do
+      case players do
+        [^active_player | _] ->
+          with {:ok, cards} <- flip_card(cards, card_index),
+               last_flipped_indexes = Tuple.append(last_flipped_indexes, card_index),
+               game = %Game{game | cards_list: cards, last_flipped_indexes: last_flipped_indexes},
+               game = next_turn(game) do
+            {:ok, game}
+          else
+            _error ->
+              {:error, {:wrong_card, "This card is already flipped"}}
+          end
+
+        [_] ->
+          {:error, {:wrong_player}}
+      end
+    else
+      {:error, {:turn_passed, "Turn already passed"}}
+    end
+  end
+
+  def flip_card(cards, card_index) do
+    card = Enum.at(cards, card_index)
+
+    if card["flipped"] == 0 do
+      {:ok, List.replace_at(cards, card_index, %{card | "flipped" => 1})}
+    else
+      {:error, {:wrong_card, "This card is already flipped"}}
+    end
   end
 
   def change_active_player(players) do
