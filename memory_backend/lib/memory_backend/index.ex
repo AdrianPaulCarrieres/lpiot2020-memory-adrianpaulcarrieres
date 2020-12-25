@@ -37,4 +37,8 @@ defmodule MemoryBackend.Index do
   def join_game(id, player) do
     GenServer.call(@server, {:join_game, id, player})
   end
+
+  def start_game(id) do
+    GenServer.call(@server, {:start_game, id})
+  end
 end

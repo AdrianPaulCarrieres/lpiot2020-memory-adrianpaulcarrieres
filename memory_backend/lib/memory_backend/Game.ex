@@ -8,8 +8,9 @@ defmodule MemoryBackend.Game do
             state: :stand_by,
             players: [],
             cards_list: [],
-            last_flipped_indexes: [],
-            turn_count: 0
+            last_flipped_indexes: {},
+            turn_count: 0,
+            flipped_count: 0
 
   @doc """
   Add player to a game.
