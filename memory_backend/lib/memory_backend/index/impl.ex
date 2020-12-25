@@ -137,4 +137,9 @@ defmodule MemoryBackend.Index.Impl do
       flipped_count
     end
   end
+
+  def end_game(%Game{state: :won, turn_count: score, deck: deck}) do
+    score = %MemoryBackend.Model.Score{score: score, deck: deck}
+    MemoryBackend.Repo.insert!(score)
+  end
 end

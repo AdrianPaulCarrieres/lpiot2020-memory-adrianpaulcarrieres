@@ -13,11 +13,15 @@ defmodule MemoryBackend.Index.Server do
   Initial state of our registry server.
   """
   def init([]) do
-    {:ok, %{}}
+    games = %{}
+    refs = %{}
+    {:ok, {games, refs}}
   end
 
   @impl true
-  def handle_call({:create_game, id, deck = %MemoryBackend.Model.Deck{}, player}, _from, games) do
+  def handle_call({:create_game, id, deck = %MemoryBackend.Model.Deck{}, player}, _from, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       {:reply, "ID already in use.", games}
     else
@@ -29,7 +33,9 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
-  def handle_call({:find_game, id}, _from, games) do
+  def handle_call({:find_game, id}, _from, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       {:reply, GameStore.get(Map.get(games, id)), games}
     else
@@ -38,7 +44,9 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
-  def handle_call({:join_game, id, player}, _from, games) do
+  def handle_call({:join_game, id, player}, _from, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
 
@@ -58,7 +66,9 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
-  def handle_call({:start_game, id}, _from, games) do
+  def handle_call({:start_game, id}, _from, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
 
@@ -77,7 +87,9 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
-  def handle_call({:play_turn, id, active_player, card_index, turn}, _from, games) do
+  def handle_call({:play_turn, id, active_player, card_index, turn}, _from, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
       game = GameStore.get(game_store)
@@ -85,11 +97,12 @@ defmodule MemoryBackend.Index.Server do
       case Impl.play_turn(game, active_player, card_index, turn) do
         {:ok, {:ongoin, game}} ->
           GameStore.set(game_store, game)
-          {:reply, {:ok, game}, games}
+          {:reply, {:ok, {:ongoin, game}}, games}
 
         {:ok, {:won, game}} ->
           GameStore.set(game_store, game)
-          {:reply, {:ok, game}, games}
+          score = Impl.end_game(game)
+          {:reply, {:ok, {:won, score}}, games}
 
         {:error, msg} ->
           {:reply, {:error, msg}, games}
@@ -100,7 +113,9 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
-  def handle_info({:afk_player, {id, old_turn}}, games) do
+  def handle_info({:afk_player, {id, old_turn}}, state) do
+    {games, _} = state
+
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
       game = GameStore.get(game_store)
