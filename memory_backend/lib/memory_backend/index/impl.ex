@@ -62,12 +62,14 @@ defmodule MemoryBackend.Index.Impl do
           turn_count: turn_count,
           players: players,
           cards_list: cards,
-          flipped_count: flipped_count
+          flipped_count: flipped_count,
+          consecutive_afk_players: consecutive_afk_players
         }
       ) do
     turn_count = turn_count + 1
     players = change_active_player(players)
     flipped_index = {}
+    consecutive_afk_players = consecutive_afk_players + 1
 
     %Game{
       game
@@ -75,7 +77,8 @@ defmodule MemoryBackend.Index.Impl do
         players: players,
         last_flipped_indexes: flipped_index,
         cards_list: cards,
-        flipped_count: flipped_count
+        flipped_count: flipped_count,
+        consecutive_afk_players: consecutive_afk_players
     }
   end
 
@@ -95,7 +98,12 @@ defmodule MemoryBackend.Index.Impl do
         [^active_player | _] ->
           with {:ok, cards} <- flip_card(cards, card_index),
                last_flipped_indexes = Tuple.append(last_flipped_indexes, card_index),
-               game = %Game{game | cards_list: cards, last_flipped_indexes: last_flipped_indexes},
+               game = %Game{
+                 game
+                 | cards_list: cards,
+                   last_flipped_indexes: last_flipped_indexes,
+                   consecutive_afk_players: 0
+               },
                {status, game} = next_turn(game) do
             {:ok, {status, game}}
           else
