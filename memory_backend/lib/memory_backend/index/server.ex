@@ -20,15 +20,20 @@ defmodule MemoryBackend.Index.Server do
 
   @impl true
   def handle_call({:create_game, id, deck = %MemoryBackend.Model.Deck{}, player}, _from, state) do
-    {games, _} = state
+    {games, refs} = state
 
     if Map.has_key?(games, id) do
-      {:reply, "ID already in use.", games}
+      {:reply, "ID already in use.", state}
     else
-      {:ok, game_agent} = MemoryBackend.GameStore.start_link([])
+      {:ok, game_store} = MemoryBackend.GameStore.start_link([])
       game = Impl.create_game(id, deck, player)
-      GameStore.set(game_agent, game)
-      {:reply, game, Map.put(games, id, game_agent)}
+      GameStore.set(game_store, game)
+
+      ref = Process.monitor(game_store)
+      refs = Map.put(refs, ref, id)
+      games = Map.put(games, id, game_store)
+
+      {:reply, game, {games, refs}}
     end
   end
 
@@ -37,9 +42,9 @@ defmodule MemoryBackend.Index.Server do
     {games, _} = state
 
     if Map.has_key?(games, id) do
-      {:reply, GameStore.get(Map.get(games, id)), games}
+      {:reply, GameStore.get(Map.get(games, id)), state}
     else
-      {:reply, "No game registered with this id", games}
+      {:reply, "No game registered with this id", state}
     end
   end
 
@@ -57,10 +62,10 @@ defmodule MemoryBackend.Index.Server do
       case result do
         {:ok, game} ->
           GameStore.set(game_store, game)
-          {:reply, {:ok, game}, games}
+          {:reply, {:ok, game}, state}
 
         {:error, msg} ->
-          {:reply, {:error, msg}, games}
+          {:reply, {:error, msg}, state}
       end
     end
   end
@@ -77,12 +82,13 @@ defmodule MemoryBackend.Index.Server do
         |> Impl.start_game()
 
       GameStore.set(game_store, game)
-      Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
-      Logger.info("Arming a new timer for game: #{inspect(id)}")
 
-      {:reply, game, games}
+      # Logger.info("Arming a new timer for game: #{inspect(id)}")
+      # Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+
+      {:reply, game, state}
     else
-      {:reply, "No game registered with this id", games}
+      {:reply, "No game registered with this id", state}
     end
   end
 
@@ -95,20 +101,20 @@ defmodule MemoryBackend.Index.Server do
       game = GameStore.get(game_store)
 
       case Impl.play_turn(game, active_player, card_index, turn) do
-        {:ok, {:ongoin, game}} ->
+        {:ok, {:ongoing, game}} ->
           GameStore.set(game_store, game)
-          {:reply, {:ok, {:ongoin, game}}, games}
+          {:reply, {:ok, {:ongoin, game}}, state}
 
         {:ok, {:won, game}} ->
           GameStore.set(game_store, game)
           score = Impl.end_game(game)
-          {:reply, {:ok, {:won, score}}, games}
+          {:reply, {:ok, {:won, score}}, state}
 
         {:error, msg} ->
-          {:reply, {:error, msg}, games}
+          {:reply, {:error, msg}, state}
       end
     else
-      {:reply, {:error, "No game registered with this id"}, games}
+      {:reply, {:error, "No game registered with this id"}, state}
     end
   end
 
@@ -133,7 +139,7 @@ defmodule MemoryBackend.Index.Server do
       # put the timer again
       Process.send_after(self(), {:afk_player, {id, game.turn_count}}, 30000)
       Logger.info("Rearming timer for game: #{inspect(id)}")
-      {:noreply, games}
+      {:noreply, state}
     end
   end
 
