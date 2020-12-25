@@ -109,7 +109,6 @@ defmodule MemoryBackend.Index.Server do
           game
         end
 
-      Logger.info("Game updated #{inspect(game)}")
       GameStore.set(game_store, game)
 
       # put the timer again
