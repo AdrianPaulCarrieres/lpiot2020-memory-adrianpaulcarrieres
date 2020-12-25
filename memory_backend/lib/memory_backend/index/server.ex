@@ -83,8 +83,8 @@ defmodule MemoryBackend.Index.Server do
 
       GameStore.set(game_store, game)
 
-      # Logger.info("Arming a new timer for game: #{inspect(id)}")
-      # Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+      Logger.info("Arming a new timer for game: #{inspect(id)}")
+      Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
 
       {:reply, game, state}
     else

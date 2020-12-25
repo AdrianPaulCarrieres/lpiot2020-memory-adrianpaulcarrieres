@@ -139,7 +139,7 @@ defmodule MemoryBackend.Index.Impl do
   end
 
   def end_game(%Game{state: :won, turn_count: score, deck: deck}) do
-    score = %MemoryBackend.Model.Score{score: score, deck: deck}
+    score = %MemoryBackend.Model.Score{score: score, deck_id: deck.id}
     MemoryBackend.Repo.insert!(score)
   end
 end
