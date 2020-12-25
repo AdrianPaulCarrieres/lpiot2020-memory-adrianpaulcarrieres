@@ -77,22 +77,34 @@ defmodule MemoryBackend.Index.Server do
   end
 
   @impl true
+  def handle_call({:play_turn, id, active_player, card_index, turn}, _from, games) do
+    if Map.has_key?(games, id) do
+      game_store = Map.get(games, id)
+      game = GameStore.get(game_store)
+
+      case Impl.play_turn(game, active_player, card_index, turn) do
+        {:ok, game} ->
+          GameStore.set(game_store, game)
+          {:reply, {:ok, game}, games}
+
+        {:error, msg} ->
+          {:reply, {:error, msg}, games}
+      end
+    else
+      {:reply, {:error, "No game registered with this id"}, games}
+    end
+  end
+
+  @impl true
   def handle_info({:afk_player, {id, old_turn}}, games) do
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
       game = GameStore.get(game_store)
       new_turn = game.turn_count
 
-      # if(old_turn == new_turn) do
-      #  game = Impl.next_turn(game)
-      # Logger.info("Game updated #{inspect(game)}")
-      #  GameStore.set(game_store, game)
-      # new_turn = new_turn + 1
-      # end
-
       game =
         if old_turn == new_turn do
-          Impl.next_turn(game)
+          Impl.skip_turn(game)
         else
           game
         end

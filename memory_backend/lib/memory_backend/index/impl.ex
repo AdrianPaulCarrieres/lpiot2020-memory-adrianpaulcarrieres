@@ -44,24 +44,72 @@ defmodule MemoryBackend.Index.Impl do
     }
   end
 
-  def next_turn(
+  def next_turn(game = %Game{}) do
+    game
+  end
+
+  def skip_turn(
         game = %Game{
           turn_count: turn_count,
           players: players,
-          last_flipped_indexes: {}
+          cards_list: cards,
+          flipped_count: flipped_count
         }
       ) do
     turn_count = turn_count + 1
     players = change_active_player(players)
-
     flipped_index = {}
 
     %Game{
       game
       | turn_count: turn_count,
         players: players,
-        last_flipped_indexes: flipped_index
+        last_flipped_indexes: flipped_index,
+        cards_list: cards,
+        flipped_count: flipped_count
     }
+  end
+
+  def play_turn(
+        game = %Game{
+          players: players,
+          cards_list: cards,
+          last_flipped_indexes: last_flipped_indexes,
+          turn_count: turn_count
+        },
+        active_player,
+        card_index,
+        turn
+      ) do
+    if turn_count == turn do
+      case players do
+        [^active_player | _] ->
+          with {:ok, cards} <- flip_card(cards, card_index),
+               last_flipped_indexes = Tuple.append(last_flipped_indexes, card_index),
+               game = %Game{game | cards_list: cards, last_flipped_indexes: last_flipped_indexes},
+               game = next_turn(game) do
+            {:ok, game}
+          else
+            _error ->
+              {:error, {:wrong_card, "This card is already flipped"}}
+          end
+
+        [_] ->
+          {:error, {:wrong_player}}
+      end
+    else
+      {:error, {:turn_passed, "Turn already passed"}}
+    end
+  end
+
+  def flip_card(cards, card_index) do
+    card = Enum.at(cards, card_index)
+
+    if card["flipped"] == 0 do
+      {:ok, List.replace_at(cards, card_index, %{card | "flipped" => 1})}
+    else
+      {:error, {:wrong_card, "This card is already flipped"}}
+    end
   end
 
   def change_active_player(players) do
@@ -69,11 +117,11 @@ defmodule MemoryBackend.Index.Impl do
     player_list ++ [active_player]
   end
 
-  def compare_cards(cards = [], {first_index, second_index}) do
-    cards[first_index]["id"] == cards[second_index]["id"]
+  def compare_cards(cards, {first_index, second_index}) do
+    Enum.at(cards, first_index)["id"] == Enum.at(cards, second_index)["id"]
   end
 
-  def update_flipped_count(flipped_count, cards = [], {first_index, second_index}) do
+  def update_flipped_count(flipped_count, cards, {first_index, second_index}) do
     if(compare_cards(cards, {first_index, second_index})) do
       flipped_count + 1
     else
