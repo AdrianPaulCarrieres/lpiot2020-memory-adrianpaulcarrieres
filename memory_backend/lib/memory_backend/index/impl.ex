@@ -24,7 +24,8 @@ defmodule MemoryBackend.Index.Impl do
           players: players,
           last_flipped_indexes: {first_index, second_index},
           cards_list: cards,
-          flipped_count: flipped_count
+          flipped_count: flipped_count,
+          state: state
         }
       ) do
     turn_count = turn_count + 1
@@ -34,7 +35,7 @@ defmodule MemoryBackend.Index.Impl do
 
     flipped_index = {}
 
-    %Game{
+    game = %Game{
       game
       | turn_count: turn_count,
         players: players,
@@ -42,10 +43,18 @@ defmodule MemoryBackend.Index.Impl do
         cards_list: cards,
         flipped_count: flipped_count
     }
+
+    if flipped_count == length(cards) / 2 do
+      state = :won
+      game = %Game{game | state: state}
+      {state, game}
+    else
+      {state, game}
+    end
   end
 
-  def next_turn(game = %Game{}) do
-    game
+  def next_turn(game = %Game{state: state}) do
+    {state, game}
   end
 
   def skip_turn(
@@ -87,8 +96,8 @@ defmodule MemoryBackend.Index.Impl do
           with {:ok, cards} <- flip_card(cards, card_index),
                last_flipped_indexes = Tuple.append(last_flipped_indexes, card_index),
                game = %Game{game | cards_list: cards, last_flipped_indexes: last_flipped_indexes},
-               game = next_turn(game) do
-            {:ok, game}
+               {status, game} = next_turn(game) do
+            {:ok, {status, game}}
           else
             _error ->
               {:error, {:wrong_card, "This card is already flipped"}}
