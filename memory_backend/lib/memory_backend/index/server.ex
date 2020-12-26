@@ -6,7 +6,6 @@ defmodule MemoryBackend.Index.Server do
   require Logger
   alias MemoryBackend.Index.Impl
   alias MemoryBackend.GameStore
-  alias MemoryBackend.Game
 
   @impl true
   @doc """
