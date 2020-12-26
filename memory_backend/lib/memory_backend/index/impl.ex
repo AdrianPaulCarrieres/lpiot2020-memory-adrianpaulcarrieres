@@ -155,8 +155,37 @@ defmodule MemoryBackend.Index.Impl do
   end
 
   def end_game(%Game{state: :won, turn_count: score, deck: deck}) do
-    score = %MemoryBackend.Model.Score{score: score, deck_id: deck.id}
-    MemoryBackend.Repo.insert!(score)
+    deck = %MemoryBackend.Model.Deck{deck | scores: [score]}
+
+    case MemoryBackend.Model.create_score(deck) do
+      {:ok, score = %MemoryBackend.Model.Score{}} ->
+        {:ok, score}
+
+      _ ->
+        {:error, -1}
+    end
+  end
+
+  def calculate_best_scores({:ok, score = %MemoryBackend.Model.Score{deck_id: deck_id}}) do
+    high_scores = MemoryBackend.Model.list_high_scores_from_deck_id(deck_id)
+
+    if Enum.any?(high_scores, fn high_score -> high_score.id == score.id end) do
+      deck = MemoryBackend.Model.get_deck!(deck_id)
+      theme = deck.theme
+
+      MemoryBackendWeb.Endpoint.broadcast!("general:" <> theme, "new_highscore", %{
+        deck_id: deck_id,
+        score: score.score
+      })
+
+      {score, true}
+    else
+      {score, false}
+    end
+  end
+
+  def calculate_best_scores({:error, _}) do
+    {999, false}
   end
 
   def join_game(game = %Game{}, player) do
