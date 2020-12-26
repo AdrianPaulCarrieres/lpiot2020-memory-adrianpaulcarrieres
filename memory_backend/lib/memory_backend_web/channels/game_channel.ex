@@ -22,8 +22,8 @@ defmodule MemoryBackendWeb.GameChannel do
         broadcast!(socket, "start_game", %{game: game})
         {:noreply, socket}
 
-      {:error, _} ->
-        {:noreply, socket}
+      {:error, msg} ->
+        {:reply, {:error, msg}, socket}
     end
   end
 end
