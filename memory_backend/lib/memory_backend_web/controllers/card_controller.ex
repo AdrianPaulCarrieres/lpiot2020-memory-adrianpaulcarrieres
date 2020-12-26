@@ -6,16 +6,18 @@ defmodule MemoryBackendWeb.CardController do
 
   action_fallback MemoryBackendWeb.FallbackController
 
-  def index(conn, _params) do
-    cards = Model.list_cards()
-    render(conn, "index.json", cards: cards)
+  def index(conn, %{"deck_id" => deck_id}) do
+    deck = Model.get_deck!(deck_id)
+    render(conn, "index.json", cards: deck.cards)
   end
 
-  def create(conn, %{"card" => card_params}) do
-    with {:ok, %Card{} = card} <- Model.create_card(card_params) do
+  def create(conn, %{"deck_id" => deck_id, "card" => card_params}) do
+    deck = Model.get_deck!(deck_id)
+
+    with {:ok, %Card{} = card} <- Model.create_card(deck, card_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.card_path(conn, :show, card))
+      |> put_resp_header("location", Routes.deck_card_path(conn, :show, deck_id, card))
       |> render("show.json", card: card)
     end
   end
