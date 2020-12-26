@@ -4,7 +4,7 @@ defmodule MemoryBackendWeb.GameChannel do
   alias MemoryBackend.Model.Deck
 
   def join("game:general", _payload, socket) do
-    decks = Deck.get_all_decks_with_high_scores()
+    decks = MemoryBackend.Model.list_decks_with_scores()
 
     topics = for deck_theme <- decks.theme, do: "game:#{deck_theme}"
 

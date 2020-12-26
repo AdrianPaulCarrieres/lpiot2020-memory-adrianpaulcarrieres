@@ -20,9 +20,17 @@ defmodule MemoryBackendWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MemoryBackendWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", MemoryBackendWeb do
+    pipe_through :api
+
+    resources "/decks", DeckController, except: [:new, :edit, :update, :delete, :create] do
+      resources "/cards", CardController, except: [:new, :edit, :update, :delete, :create]
+
+      resources "/scores", ScoreController, except: [:new, :edit, :update, :delete, :create] do
+        resources "/players", PlayerController, except: [:new, :edit, :update, :delete, :create]
+      end
+    end
+  end
 
   # Enables LiveDashboard only for development
   #

@@ -1,45 +1,23 @@
 defmodule MemoryBackend.Model.Deck do
   use Ecto.Schema
-  import Ecto.Query
+  import Ecto.Changeset
 
-  schema "deck" do
+  schema "decks" do
+    field :card_back, :binary
     field :theme, :string
 
-    has_many :card, MemoryBackend.Model.Card
-    has_many :score, MemoryBackend.Model.Score
+    has_many :cards, MemoryBackend.Model.Card, on_replace: :delete
+    has_many :scores, MemoryBackend.Model.Score, on_replace: :delete
+
+    timestamps()
   end
 
-  def get_associated_cards(%MemoryBackend.Model.Deck{theme: theme}) do
-    MemoryBackend.Repo.one(
-      from d in MemoryBackend.Model.Deck, where: d.theme == ^theme, preload: [:card]
-    )
-  end
-
-  def get_deck_with_cards_and_high_scores(%MemoryBackend.Model.Deck{id: id}) do
-    MemoryBackend.Repo.one(
-      from d in MemoryBackend.Model.Deck, where: d.id == ^id, preload: [:card, :score]
-    )
-  end
-
-  def get_deck_with_cards_and_high_scores(%MemoryBackend.Model.Deck{theme: theme}) do
-    MemoryBackend.Repo.one(
-      from d in MemoryBackend.Model.Deck, where: d.theme == ^theme, preload: [:card, :score]
-    )
-  end
-
-  def get_associated_high_scores(%MemoryBackend.Model.Deck{id: id}) do
-    MemoryBackend.Repo.one(
-      from d in MemoryBackend.Model.Deck, where: d.id == ^id, preload: [:score]
-    )
-  end
-
-  def get_associated_high_scores(%MemoryBackend.Model.Deck{theme: theme}) do
-    MemoryBackend.Repo.one(
-      from d in MemoryBackend.Model.Deck, where: d.theme == ^theme, preload: [:score]
-    )
-  end
-
-  def get_all_decks_with_high_scores() do
-    MemoryBackend.Repo.all(from d in MemoryBackend.Model.Deck, preload: [:score])
+  @doc false
+  def changeset(deck, attrs) do
+    deck
+    |> cast(attrs, [:theme, :card_back])
+    |> cast_assoc(:cards)
+    |> cast_assoc(:scores)
+    |> validate_required([:theme, :card_back])
   end
 end
