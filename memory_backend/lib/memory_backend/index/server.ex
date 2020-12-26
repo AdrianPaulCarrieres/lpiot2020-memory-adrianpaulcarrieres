@@ -22,7 +22,7 @@ defmodule MemoryBackend.Index.Server do
     {games, refs} = state
 
     if Map.has_key?(games, id) do
-      {:reply, "ID already in use.", state}
+      {:reply, {:error, "ID already in use."}, state}
     else
       {:ok, game_store} = MemoryBackend.GameStore.start_link([])
       game = Impl.create_game(id, deck, player)
@@ -32,7 +32,7 @@ defmodule MemoryBackend.Index.Server do
       refs = Map.put(refs, ref, id)
       games = Map.put(games, id, game_store)
 
-      {:reply, game, {games, refs}}
+      {:reply, {:ok, game}, {games, refs}}
     end
   end
 
@@ -134,8 +134,8 @@ defmodule MemoryBackend.Index.Server do
           game
         end
 
-      # Send itself a message to stop the inactive game
-      if(game.consecutive_afk_players == length(game.players)) do
+      # Send itself a message to stop the inactive game if all players are AFK for 2 turns
+      if(game.consecutive_afk_players == length(game.players) * 2) do
         send(self(), {:stop_game, id})
       else
         GameStore.set(game_store, game)
