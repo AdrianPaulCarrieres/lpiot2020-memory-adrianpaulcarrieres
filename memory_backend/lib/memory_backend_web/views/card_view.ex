@@ -11,7 +11,6 @@ defmodule MemoryBackendWeb.CardView do
   end
 
   def render("card.json", %{card: card}) do
-    %{id: card.id,
-      image: card.image}
+    %{id: card.id, image: Base.encode64(card.image)}
   end
 end
