@@ -42,9 +42,9 @@ defmodule MemoryBackend.Index.Server do
     {games, _} = state
 
     if Map.has_key?(games, id) do
-      {:reply, GameStore.get(Map.get(games, id)), state}
+      {:reply, {:ok, GameStore.get(Map.get(games, id))}, state}
     else
-      {:reply, "No game registered with this id", state}
+      {:reply, {:error, "No game registered with this id"}, state}
     end
   end
 
@@ -86,9 +86,9 @@ defmodule MemoryBackend.Index.Server do
       Logger.info("Arming a new timer for game: #{inspect(id)}")
       Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
 
-      {:reply, game, state}
+      {:reply, {:ok, game}, state}
     else
-      {:reply, "No game registered with this id", state}
+      {:reply, {:error, "No game registered with this id"}, state}
     end
   end
 
