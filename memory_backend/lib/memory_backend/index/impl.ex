@@ -31,7 +31,7 @@ defmodule MemoryBackend.Index.Impl do
     turn_count = turn_count + 1
     players = change_active_player(players)
 
-    flipped_count = update_flipped_count(flipped_count, cards, {first_index, second_index})
+    [flipped_count, cards] = update_flipped_count(flipped_count, cards, first_index, second_index)
 
     flipped_index = {}
 
@@ -129,20 +129,28 @@ defmodule MemoryBackend.Index.Impl do
     end
   end
 
+  def unflip_cards(cards, first_index, second_index) do
+    first_card = Enum.at(cards, first_index)
+    second_card = Enum.at(cards, second_index)
+
+    List.replace_at(cards, first_index, %{first_card | "flipped" => 0})
+    |> List.replace_at(second_index, %{second_card | "flipped" => 0})
+  end
+
   def change_active_player(players) do
     [active_player | player_list] = players
     player_list ++ [active_player]
   end
 
-  def compare_cards(cards, {first_index, second_index}) do
+  def compare_cards(cards, first_index, second_index) do
     Enum.at(cards, first_index)["id"] == Enum.at(cards, second_index)["id"]
   end
 
-  def update_flipped_count(flipped_count, cards, {first_index, second_index}) do
-    if(compare_cards(cards, {first_index, second_index})) do
-      flipped_count + 1
+  def update_flipped_count(flipped_count, cards, first_index, second_index) do
+    if(compare_cards(cards, first_index, second_index)) do
+      [flipped_count + 1, cards]
     else
-      flipped_count
+      [flipped_count, unflip_cards(cards, first_index, second_index)]
     end
   end
 
