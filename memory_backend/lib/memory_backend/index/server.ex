@@ -105,10 +105,14 @@ defmodule MemoryBackend.Index.Server do
 
         {:ok, {:won, game}} ->
           GameStore.set(game_store, game)
-          score = Impl.end_game(game)
+
+          {actual_score, is_better_than_any_high_score} =
+            Impl.end_game(game)
+            |> Impl.calculate_best_scores()
+
           # Stop the game after a few minutes
           Process.send_after(self(), {:stop_game, id}, 60000)
-          {:reply, {:ok, {:won, score}}, state}
+          {:reply, {:ok, {:won, actual_score, is_better_than_any_high_score}}, state}
 
         {:error, msg} ->
           {:reply, {:error, msg}, state}
