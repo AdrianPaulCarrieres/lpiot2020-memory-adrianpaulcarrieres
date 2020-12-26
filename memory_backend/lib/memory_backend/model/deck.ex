@@ -20,4 +20,10 @@ defmodule MemoryBackend.Model.Deck do
       from d in MemoryBackend.Model.Deck, where: d.theme == ^theme, preload: [:score]
     )
   end
+
+  def get_associated_high_scores(%MemoryBackend.Model.Deck{id: id}) do
+    MemoryBackend.Repo.one(
+      from d in MemoryBackend.Model.Deck, where: d.id == ^id, preload: [:score]
+    )
+  end
 end
