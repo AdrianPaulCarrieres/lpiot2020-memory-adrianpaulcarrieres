@@ -24,6 +24,7 @@ defmodule MemoryBackendWeb.Router do
     pipe_through :api
     resources "/decks", DeckController, except: [:new, :edit]
     resources "/cards", CardController, except: [:new, :edit]
+    resources "/players", PlayerController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development

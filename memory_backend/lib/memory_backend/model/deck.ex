@@ -6,6 +6,9 @@ defmodule MemoryBackend.Model.Deck do
     field :card_back, :binary
     field :theme, :string
 
+    has_many :card, MemoryBackend.Model.Card
+    has_many :score, MemoryBackend.Model.Score
+
     timestamps()
   end
 
