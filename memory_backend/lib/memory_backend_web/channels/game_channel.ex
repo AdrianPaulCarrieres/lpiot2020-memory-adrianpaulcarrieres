@@ -6,7 +6,7 @@ defmodule MemoryBackendWeb.GameChannel do
     with {:ok, _} <- Index.find_game(game_id),
          {:ok, game} <- Index.join_game(game_id, socket.assigns.player) do
       socket = assign(socket, :game_id, game_id)
-      broadcast!(socket, "new_player", %{game: game, player: socket})
+      broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
       {:ok, socket}
     else
       _ ->
@@ -36,7 +36,21 @@ defmodule MemoryBackendWeb.GameChannel do
     end
   end
 
-  def flip_card(id, active_player, card_index, turn) do
-    GenServer.call(@server, {:play_turn, id, active_player, card_index, turn})
+  def handle_in("flip_card", {card_index, turn}, socket) do
+    game_id = socket.assigns.game_id
+    active_player = socket.assigns.player
+
+    case Index.flip_card(game_id, active_player, card_index, turn) do
+      {:ok, {:ongoing, game}} ->
+        broadcast!(socket, "turn_played", %{game: game})
+        {:no_reply, socket}
+
+      {:ok, {:won, score}} ->
+        broadcast!(socket, "game_won", %{score: score})
+        {:no_reply, socket}
+
+      {:error, msg} ->
+        {:reply, {:error, msg}, socket}
+    end
   end
 end
