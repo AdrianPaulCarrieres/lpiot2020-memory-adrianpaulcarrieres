@@ -38,7 +38,7 @@ defmodule MemoryBackend.Game do
   end
 
   @doc """
-  Populate the given game's cards list.
+  Populate the given game's cards list with the deck.
 
   It takes them from the associated deck in the database, duplicate and create a map for each card, with the image and the flipped state.
   """
