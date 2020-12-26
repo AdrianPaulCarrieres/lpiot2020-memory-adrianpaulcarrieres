@@ -87,7 +87,7 @@ defmodule MemoryBackend.Index.Server do
 
       {:reply, {:ok, game}, state}
     else
-      {:reply, {:error, "No game registered with this id"}, state}
+      {:reply, {:error, :no_game}, state}
     end
   end
 
@@ -115,7 +115,7 @@ defmodule MemoryBackend.Index.Server do
           {:reply, {:error, msg}, state}
       end
     else
-      {:reply, {:error, "No game registered with this id"}, state}
+      {:reply, {:error, :no_game}, state}
     end
   end
 
@@ -147,6 +147,8 @@ defmodule MemoryBackend.Index.Server do
       end
 
       {:noreply, state}
+    else
+      {:reply, {:error, :no_game}, state}
     end
   end
 
@@ -158,6 +160,8 @@ defmodule MemoryBackend.Index.Server do
       Map.get(games, id)
       |> Agent.stop()
 
+      {:noreply, state}
+    else
       {:noreply, state}
     end
   end
