@@ -6,7 +6,7 @@ defmodule MemoryBackend.Model do
   import Ecto.Query, warn: false
   alias MemoryBackend.Repo
 
-  alias MemoryBackend.Model.Deck
+  alias MemoryBackend.Model.{Deck, Score}
 
   @doc """
   Returns the list of decks.
@@ -22,7 +22,11 @@ defmodule MemoryBackend.Model do
   end
 
   def list_decks_with_scores do
-    Repo.all(from d in Deck, preload: [:score])
+    Repo.all(
+      from d in Deck,
+        preload: [score: ^from(s in Score, order_by: [asc: s.score])],
+        order_by: [asc: d.theme]
+    )
   end
 
   @doc """
@@ -224,6 +228,15 @@ defmodule MemoryBackend.Model do
   """
   def list_scores do
     Repo.all(Score)
+  end
+
+  def list_high_scores_from_deck_id(deck_id) do
+    Repo.all(
+      from s in MemoryBackend.Model.Score,
+        where: s.deck_id == ^deck_id,
+        limit: 10,
+        order_by: [asc: s.score]
+    )
   end
 
   @doc """
