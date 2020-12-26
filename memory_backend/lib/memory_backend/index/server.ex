@@ -44,7 +44,7 @@ defmodule MemoryBackend.Index.Server do
     if Map.has_key?(games, id) do
       {:reply, {:ok, GameStore.get(Map.get(games, id))}, state}
     else
-      {:reply, {:error, "No game registered with this id"}, state}
+      {:reply, {:error, :no_game}, state}
     end
   end
 
