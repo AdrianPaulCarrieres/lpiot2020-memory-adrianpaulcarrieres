@@ -3,8 +3,6 @@ defmodule MemoryBackend.Game do
   Defining game.
   """
 
-  alias MemoryBackend.Model.Deck
-
   defstruct id: "000000",
             deck: %MemoryBackend.Model.Deck{},
             state: :stand_by,
@@ -45,8 +43,10 @@ defmodule MemoryBackend.Game do
   It takes them from the associated deck in the database, duplicate and create a map for each card, with the image and the flipped state.
   """
   def populate_cards_list(game = %MemoryBackend.Game{deck: deck}) do
-    deck = MemoryBackend.Model.Deck.get_associated_cards(deck)
-    cards = deck.cards
+    cards = MemoryBackend.Model.Deck.get_associated_cards(deck).card
+
+    deck = MemoryBackend.Model.Deck.get_associated_high_scores(deck)
+
 
     cards_list =
       Enum.map(cards, fn x ->
@@ -54,8 +54,6 @@ defmodule MemoryBackend.Game do
       end)
       |> List.flatten()
       |> Enum.shuffle()
-
-    deck = %Deck{deck | cards: []}
 
     %MemoryBackend.Game{game | deck: deck, cards_list: cards_list}
   end
