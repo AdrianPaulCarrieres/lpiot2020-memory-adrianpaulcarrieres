@@ -1,9 +1,18 @@
 defmodule MemoryBackend.Model.Card do
   use Ecto.Schema
+  import Ecto.Changeset
 
-  schema "card" do
-    field :image, :string
+  schema "cards" do
+    field :image, :binary
+    field :deck_id, :id
 
-    belongs_to :deck, MemoryBackend.Model.Deck
+    timestamps()
+  end
+
+  @doc false
+  def changeset(card, attrs) do
+    card
+    |> cast(attrs, [:image])
+    |> validate_required([:image])
   end
 end

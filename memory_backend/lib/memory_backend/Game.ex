@@ -3,6 +3,8 @@ defmodule MemoryBackend.Game do
   Defining game.
   """
 
+  alias MemoryBackend.Model.Deck
+
   defstruct id: "000000",
             deck: %MemoryBackend.Model.Deck{},
             state: :stand_by,
@@ -52,6 +54,8 @@ defmodule MemoryBackend.Game do
       end)
       |> List.flatten()
       |> Enum.shuffle()
+
+    deck = %Deck{deck | cards: []}
 
     %MemoryBackend.Game{game | deck: deck, cards_list: cards_list}
   end
