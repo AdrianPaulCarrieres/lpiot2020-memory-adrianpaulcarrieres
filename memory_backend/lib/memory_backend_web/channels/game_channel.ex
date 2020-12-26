@@ -7,7 +7,6 @@ defmodule MemoryBackendWeb.GameChannel do
 
     case Index.join_game(game_id, player) do
       {:ok, game} ->
-        socket = assign(socket, :game_id, game_id)
         broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
         {:ok, socket}
 
@@ -21,7 +20,7 @@ defmodule MemoryBackendWeb.GameChannel do
   end
 
   def handle_in("start_game", _payload, socket) do
-    game_id = socket.assigns.game_id
+    "game:" <> game_id = socket.topic
 
     case Index.start_game(game_id) do
       {:ok, game} ->
@@ -34,7 +33,7 @@ defmodule MemoryBackendWeb.GameChannel do
   end
 
   def handle_in("find_game", _payload, socket) do
-    game_id = socket.assigns.game_id
+    "game:" <> game_id = socket.topic
 
     case Index.find_game(game_id) do
       {:ok, game} -> {:reply, {:ok, game}, socket}
@@ -43,7 +42,7 @@ defmodule MemoryBackendWeb.GameChannel do
   end
 
   def handle_in("flip_card", {card_index, turn}, socket) do
-    game_id = socket.assigns.game_id
+    "game:" <> game_id = socket.topic
     active_player = socket.assigns.player
 
     case Index.flip_card(game_id, active_player, card_index, turn) do
