@@ -26,4 +26,17 @@ defmodule MemoryBackendWeb.GameChannel do
         {:reply, {:error, msg}, socket}
     end
   end
+
+  def handle_in("find_game", _payload, socket) do
+    game_id = socket.assigns.game_id
+
+    case Index.find_game(game_id) do
+      {:ok, game} -> {:reply, {:ok, game}, socket}
+      error_tuple -> {:reply, error_tuple, socket}
+    end
+  end
+
+  def flip_card(id, active_player, card_index, turn) do
+    GenServer.call(@server, {:play_turn, id, active_player, card_index, turn})
+  end
 end
