@@ -2,7 +2,7 @@ defmodule MemoryBackendWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", MemoryBackendWeb.RoomChannel
+  channel "game:*", MemoryBackendWeb.GameChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -16,7 +16,8 @@ defmodule MemoryBackendWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(_params, socket, _connect_info) do
+  def connect(%{"player" => player}, socket, _connect_info) do
+    socket = assign(socket, :player, player)
     {:ok, socket}
   end
 
