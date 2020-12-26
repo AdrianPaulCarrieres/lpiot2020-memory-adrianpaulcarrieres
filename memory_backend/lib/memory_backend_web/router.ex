@@ -44,7 +44,10 @@ defmodule MemoryBackendWeb.Router do
 
     scope "/" do
       pipe_through :browser
-      live_dashboard "/dashboard", metrics: MemoryBackendWeb.Telemetry
+
+      live_dashboard "/dashboard",
+        metrics: MemoryBackendWeb.Telemetry,
+        ecto_repos: [MemoryBackend.Repo]
     end
   end
 end
