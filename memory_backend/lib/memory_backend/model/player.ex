@@ -4,7 +4,7 @@ defmodule MemoryBackend.Model.Player do
 
   schema "players" do
     field :player_name, :string
-    field :score_id, :id
+    belongs_to(:score, MemoryBackend.Model.Score)
 
     timestamps()
   end
@@ -14,5 +14,6 @@ defmodule MemoryBackend.Model.Player do
     player
     |> cast(attrs, [:player_name])
     |> validate_required([:player_name])
+    |> assoc_constraint(:score)
   end
 end

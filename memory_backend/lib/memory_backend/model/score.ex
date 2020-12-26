@@ -4,7 +4,9 @@ defmodule MemoryBackend.Model.Score do
 
   schema "scores" do
     field :score, :integer
-    field :deck_id, :id
+    belongs_to(:deck, MemoryBackend.Model.Deck)
+
+    has_many :players, MemoryBackend.Model.Player, on_replace: :delete
 
     timestamps()
   end
@@ -13,6 +15,8 @@ defmodule MemoryBackend.Model.Score do
   def changeset(score, attrs) do
     score
     |> cast(attrs, [:score])
+    |> cast_assoc(:players)
     |> validate_required([:score])
+    |> assoc_constraint(:deck)
   end
 end

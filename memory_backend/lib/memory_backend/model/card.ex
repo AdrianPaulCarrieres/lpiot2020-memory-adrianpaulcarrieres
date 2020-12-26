@@ -4,7 +4,7 @@ defmodule MemoryBackend.Model.Card do
 
   schema "cards" do
     field :image, :binary
-    field :deck_id, :id
+    belongs_to(:deck, MemoryBackend.Model.Deck)
 
     timestamps()
   end
@@ -14,5 +14,6 @@ defmodule MemoryBackend.Model.Card do
     card
     |> cast(attrs, [:image])
     |> validate_required([:image])
+    |> assoc_constraint(:deck)
   end
 end

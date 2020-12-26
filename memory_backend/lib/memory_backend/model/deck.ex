@@ -6,8 +6,8 @@ defmodule MemoryBackend.Model.Deck do
     field :card_back, :binary
     field :theme, :string
 
-    has_many :card, MemoryBackend.Model.Card
-    has_many :score, MemoryBackend.Model.Score
+    has_many :cards, MemoryBackend.Model.Card, on_replace: :delete
+    has_many :scores, MemoryBackend.Model.Score, on_replace: :delete
 
     timestamps()
   end
@@ -16,6 +16,8 @@ defmodule MemoryBackend.Model.Deck do
   def changeset(deck, attrs) do
     deck
     |> cast(attrs, [:theme, :card_back])
+    |> cast_assoc(:cards)
+    |> cast_assoc(:scores)
     |> validate_required([:theme, :card_back])
   end
 end
