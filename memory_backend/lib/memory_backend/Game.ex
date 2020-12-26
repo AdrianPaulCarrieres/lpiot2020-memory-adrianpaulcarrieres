@@ -43,10 +43,9 @@ defmodule MemoryBackend.Game do
   It takes them from the associated deck in the database, duplicate and create a map for each card, with the image and the flipped state.
   """
   def populate_cards_list(game = %MemoryBackend.Game{deck: deck}) do
-    cards = MemoryBackend.Model.Deck.get_associated_cards(deck).card
+    deck = MemoryBackend.Model.get_deck!(deck.id)
 
-    deck = MemoryBackend.Model.Deck.get_associated_high_scores(deck)
-
+    cards = deck.cards
 
     cards_list =
       Enum.map(cards, fn x ->
@@ -54,6 +53,10 @@ defmodule MemoryBackend.Game do
       end)
       |> List.flatten()
       |> Enum.shuffle()
+
+    # Strip deck from cards and scores to minimize the size of our struct in memory and over the network
+
+    deck = %MemoryBackend.Model.Deck{deck | cards: [], scores: []}
 
     %MemoryBackend.Game{game | deck: deck, cards_list: cards_list}
   end

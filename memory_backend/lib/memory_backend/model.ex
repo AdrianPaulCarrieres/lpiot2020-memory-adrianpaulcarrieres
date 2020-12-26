@@ -21,6 +21,10 @@ defmodule MemoryBackend.Model do
     Repo.all(Deck)
   end
 
+  def list_decks_with_scores do
+    Repo.all(from d in Deck, preload: [:score])
+  end
+
   @doc """
   Gets a single deck.
 
