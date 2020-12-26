@@ -4,7 +4,7 @@ defmodule MemoryBackend.Repo.Migrations.CreatePlayers do
   def change do
     create table(:players) do
       add :player_name, :string
-      add :score_id, references(:scores, on_delete: :nothing)
+      add :score_id, references(:scores, on_delete: :delete_all), null: false
 
       timestamps()
     end
