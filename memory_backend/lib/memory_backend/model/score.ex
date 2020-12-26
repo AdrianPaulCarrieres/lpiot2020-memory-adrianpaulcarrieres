@@ -4,6 +4,7 @@ defmodule MemoryBackend.Model.Score do
 
   schema "scores" do
     field :score, :integer
+
     belongs_to(:deck, MemoryBackend.Model.Deck)
 
     has_many :players, MemoryBackend.Model.Player, on_replace: :delete

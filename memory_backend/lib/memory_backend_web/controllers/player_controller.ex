@@ -6,16 +6,17 @@ defmodule MemoryBackendWeb.PlayerController do
 
   action_fallback MemoryBackendWeb.FallbackController
 
-  def index(conn, _params) do
-    players = Model.list_players()
-    render(conn, "index.json", players: players)
+  def index(%{"score_id" => score_id}, conn, _params) do
+    score = Model.get_score!(score_id)
+    render(conn, "index.json", players: score.players)
   end
 
-  def create(conn, %{"player" => player_params}) do
-    with {:ok, %Player{} = player} <- Model.create_player(player_params) do
+  def create(conn, %{"score_id" => score_id, "player" => player_params}) do
+    score = Model.get_score!(score_id)
+
+    with {:ok, %Player{} = player} <- Model.create_player(score, player_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.player_path(conn, :show, player))
       |> render("show.json", player: player)
     end
   end

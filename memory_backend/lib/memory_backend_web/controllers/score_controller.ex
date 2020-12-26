@@ -6,16 +6,18 @@ defmodule MemoryBackendWeb.ScoreController do
 
   action_fallback MemoryBackendWeb.FallbackController
 
-  def index(conn, _params) do
-    scores = Model.list_scores()
-    render(conn, "index.json", scores: scores)
+  def index(conn, %{"deck_id" => deck_id}) do
+    deck = Model.get_deck!(deck_id)
+    render(conn, "index.json", scores: deck.scores)
   end
 
-  def create(conn, %{"score" => score_params}) do
-    with {:ok, %Score{} = score} <- Model.create_score(score_params) do
+  def create(conn, %{"deck_id" => deck_id, "score" => score_params}) do
+    deck = Model.get_deck!(deck_id)
+
+    with {:ok, %Score{} = score} <- Model.create_score(deck, score_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.score_path(conn, :show, score))
+      |> put_resp_header("location", Routes.deck_score_path(conn, :show, deck_id, score))
       |> render("show.json", score: score)
     end
   end

@@ -254,8 +254,9 @@ defmodule MemoryBackend.Model do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_score(attrs \\ %{}) do
-    %Score{}
+  def create_score(%Deck{} = deck, attrs \\ %{}) do
+    deck
+    |> Ecto.build_assoc(:scores)
     |> Score.changeset(attrs)
     |> Repo.insert()
     |> case do
