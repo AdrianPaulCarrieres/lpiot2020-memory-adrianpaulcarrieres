@@ -67,6 +67,8 @@ defmodule MemoryBackend.Index.Server do
         {:error, msg} ->
           {:reply, {:error, msg}, state}
       end
+    else
+      {:reply, {:error, :no_game}, state}
     end
   end
 
