@@ -35,7 +35,11 @@ defmodule MemoryBackend.Model do
       ** (Ecto.NoResultsError)
 
   """
-  def get_deck!(id), do: Repo.get!(Deck, id)
+  def get_deck!(id) do
+    Deck
+    |> Repo.get!(id)
+    |> Repo.preload([:cards, :scores])
+  end
 
   @doc """
   Creates a deck.
@@ -53,6 +57,10 @@ defmodule MemoryBackend.Model do
     %Deck{}
     |> Deck.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, %Deck{} = deck} -> {:ok, Repo.preload(deck, [:cards, :scores])}
+      error -> error
+    end
   end
 
   @doc """
@@ -145,8 +153,9 @@ defmodule MemoryBackend.Model do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_card(attrs \\ %{}) do
-    %Card{}
+  def create_card(%Deck{} = deck, attrs \\ %{}) do
+    deck
+    |> Ecto.build_assoc(:cards)
     |> Card.changeset(attrs)
     |> Repo.insert()
   end
@@ -227,7 +236,11 @@ defmodule MemoryBackend.Model do
       ** (Ecto.NoResultsError)
 
   """
-  def get_score!(id), do: Repo.get!(Score, id)
+  def get_score!(id) do
+    Score
+    |> Repo.get!(id)
+    |> Repo.preload(:players)
+  end
 
   @doc """
   Creates a score.
@@ -245,6 +258,10 @@ defmodule MemoryBackend.Model do
     %Score{}
     |> Score.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, %Score{} = score} -> {:ok, Repo.preload(score, :players)}
+      error -> error
+    end
   end
 
   @doc """
@@ -337,8 +354,9 @@ defmodule MemoryBackend.Model do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_player(attrs \\ %{}) do
-    %Player{}
+  def create_player(%Score{} = score, attrs \\ %{}) do
+    score
+    |> Ecto.build_assoc(:players)
     |> Player.changeset(attrs)
     |> Repo.insert()
   end
