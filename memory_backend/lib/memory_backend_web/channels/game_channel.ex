@@ -3,13 +3,19 @@ defmodule MemoryBackendWeb.GameChannel do
   alias MemoryBackend.Index
 
   def join("game:" <> game_id, _params, socket) do
-    with {:ok, _} <- Index.find_game(game_id),
-         {:ok, game} <- Index.join_game(game_id, socket.assigns.player) do
-      socket = assign(socket, :game_id, game_id)
-      broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
-      {:ok, socket}
-    else
-      _ ->
+    player = socket.assigns.player
+
+    case Index.join_game(game_id, player) do
+      {:ok, game} ->
+        socket = assign(socket, :game_id, game_id)
+        broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
+        {:ok, socket}
+
+      {:reconnect, game} ->
+        socket = assign(socket, :game_id, game_id)
+        {:ok, %{game: game}, socket}
+
+      {:error, :no_game} ->
         {:error, %{reason: "Game doesn't exists"}}
     end
   end

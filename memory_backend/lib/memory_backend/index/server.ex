@@ -54,18 +54,15 @@ defmodule MemoryBackend.Index.Server do
 
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
+      game = GameStore.get(game_store)
 
-      result =
-        GameStore.get(game_store)
-        |> Game.join(player)
-
-      case result do
+      case Impl.join_game(game, player) do
         {:ok, game} ->
           GameStore.set(game_store, game)
           {:reply, {:ok, game}, state}
 
-        {:error, msg} ->
-          {:reply, {:error, msg}, state}
+        {:error, _} ->
+          {:reply, {:reconnect, game}, state}
       end
     else
       {:reply, {:error, :no_game}, state}

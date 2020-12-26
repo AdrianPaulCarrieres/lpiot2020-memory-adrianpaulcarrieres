@@ -158,4 +158,11 @@ defmodule MemoryBackend.Index.Impl do
     score = %MemoryBackend.Model.Score{score: score, deck_id: deck.id}
     MemoryBackend.Repo.insert!(score)
   end
+
+  def join_game(game = %Game{}, player) do
+    case Game.join(game, player) do
+      {:ok, game} -> {:ok, game}
+      {:error, _} -> {:error, game}
+    end
+  end
 end
