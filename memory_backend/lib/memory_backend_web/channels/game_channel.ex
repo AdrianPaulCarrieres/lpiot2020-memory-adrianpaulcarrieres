@@ -6,7 +6,12 @@ defmodule MemoryBackendWeb.GameChannel do
   def join("game:general", _payload, socket) do
     decks = Deck.get_all_decks_with_high_scores()
 
-    {:ok, %{decks: decks}, socket}
+    topics = for deck_theme <- decks.theme, do: "game:#{deck_theme}"
+
+    {:ok, %{decks: decks},
+     socket
+     |> assign(:topics, [])
+     |> subscribe_to_high_scores_topics(topics)}
   end
 
   def join("game:" <> game_id, _params, socket) do
@@ -15,11 +20,17 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.join_game(game_id, player) do
       {:ok, game} ->
         broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
-        {:ok, socket}
+
+        {:ok,
+         socket
+         |> unsubscribe_to_other_high_scores_topics(game.deck)}
 
       {:reconnect, game} ->
         socket = assign(socket, :game_id, game_id)
-        {:ok, %{game: game}, socket}
+
+        {:ok, %{game: game},
+         socket
+         |> unsubscribe_to_other_high_scores_topics(game.deck)}
 
       {:error, :no_game} ->
         {:error, %{reason: "Game doesn't exists"}}
@@ -77,5 +88,37 @@ defmodule MemoryBackendWeb.GameChannel do
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
     end
+  end
+
+  defp subscribe_to_high_scores_topics(socket, topics) do
+    Enum.reduce(topics, socket, fn topic, acc ->
+      topics = acc.assigns.topics
+
+      if topic in topics do
+        acc
+      else
+        :ok = MemoryBackendWeb.Endpoint.subscribe(topic)
+        assign(acc, :topics, [topic | topics])
+      end
+    end)
+  end
+
+  defp unsubscribe_to_other_high_scores_topics(socket, %Deck{theme: theme}) do
+    Enum.reduce(
+      socket.assign.topics,
+      socket,
+      fn topic_to_unsubscribe, acc ->
+        topics = acc.assigns.topics
+
+        if(topic_to_unsubscribe != "game:#{theme}") do
+          topics = List.delete(topics, topic_to_unsubscribe)
+
+          MemoryBackendWeb.Endpoint.unsubscribe(topic_to_unsubscribe)
+          assign(acc, :topics, topics)
+        else
+          acc
+        end
+      end
+    )
   end
 end
