@@ -24,7 +24,7 @@ defmodule MemoryBackend.Model do
   def list_decks_with_scores do
     Repo.all(
       from d in Deck,
-        preload: [score: ^from(s in Score, order_by: [asc: s.score])],
+        preload: [score: ^from(s in Score, limit: 10, order_by: [asc: s.score])],
         order_by: [asc: d.theme]
     )
   end
