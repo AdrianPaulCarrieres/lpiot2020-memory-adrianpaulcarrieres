@@ -2,7 +2,8 @@ defmodule MemoryBackendWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", MemoryBackendWeb.RoomChannel
+  channel "game:*", MemoryBackendWeb.Game
+  channel "score:*", MemoryBackendWeb.ScoreChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
