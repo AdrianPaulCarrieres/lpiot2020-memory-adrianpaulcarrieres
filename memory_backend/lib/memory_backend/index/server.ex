@@ -103,7 +103,7 @@ defmodule MemoryBackend.Index.Server do
       case Impl.play_turn(game, active_player, card_index, turn) do
         {:ok, {:ongoing, game}} ->
           GameStore.set(game_store, game)
-          {:reply, {:ok, {:ongoin, game}}, state}
+          {:reply, {:ok, {:ongoing, game}}, state}
 
         {:ok, {:won, game}} ->
           GameStore.set(game_store, game)
