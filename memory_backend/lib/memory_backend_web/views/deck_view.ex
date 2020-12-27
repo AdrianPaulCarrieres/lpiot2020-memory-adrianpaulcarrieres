@@ -11,7 +11,7 @@ defmodule MemoryBackendWeb.DeckView do
   end
 
   def render("deck.json", %{deck: deck}) do
-    %{id: deck.id, theme: deck.theme, card_back: deck.card_back}
+    %{id: deck.id, theme: deck.theme, card_back: Base.encode64(deck.card_back)}
   end
 
   def render("deck_with_cards.json", %{deck: deck}) do

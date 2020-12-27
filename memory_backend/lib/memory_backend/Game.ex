@@ -56,7 +56,7 @@ defmodule MemoryBackend.Game do
 
     # Strip deck from cards and scores to minimize the size of our struct in memory and over the network
 
-    deck = %MemoryBackend.Model.Deck{deck | cards: [], scores: []}
+    deck = %MemoryBackend.Model.Deck{deck | cards: [], scores: [], card_back: ""}
 
     %MemoryBackend.Game{game | deck: deck, cards_list: cards_list}
   end
