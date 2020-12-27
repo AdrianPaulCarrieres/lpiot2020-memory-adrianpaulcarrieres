@@ -8,7 +8,7 @@ defmodule MemoryBackendWeb.GameChannel do
 
     topics = for deck_theme <- decks.theme, do: "game:#{deck_theme}"
 
-    {:ok, %{decks: decks},
+    {:ok,
      socket
      |> assign(:topics, [])
      |> subscribe_to_high_scores_topics(topics)}
