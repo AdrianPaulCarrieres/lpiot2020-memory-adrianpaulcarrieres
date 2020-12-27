@@ -56,12 +56,15 @@ export class ChannelService {
   create_game(game_id: String, deck: Deck) {
     this.channel.push("create_game", { game_id: game_id, deck_id: deck.id })
       .receive("ok", payload => console.log("phoenix replied:", payload))
-      .receive("error", err => console.log("phoenix errored", err))
-      .receive("timeout", () => console.log("timed out pushing"))
-
-
+      .receive("error", err => alert(err))
+      .receive("timeout", () => alert("timed out pushing"))
   }
 
-
+  start_game() {
+    this.channel.push("start_game", {})
+      .receive("ok", payload => console.log("phoenix replied:", payload))
+      .receive("error", err => alert(err))
+      .receive("timeout", () => alert("timed out pushing"))
+  }
 
 }
