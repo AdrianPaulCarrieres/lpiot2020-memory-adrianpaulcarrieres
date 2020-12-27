@@ -31,5 +31,9 @@ export class Score extends BaseModel implements ScoreInterface {
         return scores;
     }
 
+    public static parse_score(data: String): Score{
+        return new Score(data);
+    }
+
 
 }

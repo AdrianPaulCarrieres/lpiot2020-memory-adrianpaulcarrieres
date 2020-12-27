@@ -32,5 +32,9 @@ export class Deck extends BaseModel implements DeckInterface {
         return decks;
     }
 
+    public static parse_deck(data: String): Deck{
+        return new Deck(data);
+    }
+
 
 }

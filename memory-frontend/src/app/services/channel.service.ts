@@ -49,7 +49,7 @@ export class ChannelService {
 
 
         this.channel.on("new_highscore", msg => {
-          let score = new Score(msg);
+          let score = Score.parse_score(msg);
           return observer.next(score);
         });
       }

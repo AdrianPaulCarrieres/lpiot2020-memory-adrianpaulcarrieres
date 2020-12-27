@@ -21,9 +21,9 @@ export class LobbyComponent implements OnInit {
   joinLobby(): void {
     this.channelService.join_lobby()
       .subscribe({
-        next: function (data) {
-          console.log("Score is " + data)
-          this.scores = this.scores.append(data)
+        next: function (score) {
+          console.log("Score is " + score)
+          this.scores = this.scores.append(score)
         }, error: function (errorMessage) {
           console.log("Recieved the error with following message: " + errorMessage);
         }, complete: function () {

@@ -24,4 +24,8 @@ export class Player extends BaseModel implements PlayerInterface {
         players.splice(0, 1);
         return players;
     }
+
+    public static parse_player(data: String): Player{
+        return new Player(data);
+    }
 }

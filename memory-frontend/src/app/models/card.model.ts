@@ -24,4 +24,8 @@ export class Card extends BaseModel implements CardInterface {
         cards.splice(0, 1)
         return cards;
     }
+
+    public static parse_card(data: String): Card{
+        return new Card(data);
+    }
 }
