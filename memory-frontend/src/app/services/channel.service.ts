@@ -16,13 +16,14 @@ export class ChannelService {
   public socket: any;
   public channel: any;
   public decks: [Deck];
+  private player_name: String = "Your name here"
 
   constructor() {
     this.connect();
   }
 
   connect(): void {
-    this.socket = new Phoenix.Socket(environment.socket_endpoint + '/socket', { params: { player: "123" } });
+    this.socket = new Phoenix.Socket(environment.socket_endpoint + '/socket', { params: { player: this.player_name } });
 
     this.socket.connect();
   }
@@ -33,9 +34,7 @@ export class ChannelService {
       this.channel.join()
         .receive("ok", resp => {
           console.log("Joined successfully");
-          console.table(resp.decks);
           this.decks = Deck.parse_decks(resp.decks);
-          console.table(this.decks);
         })
         .receive("error", resp => {
           console.log("Unable to join", resp);
@@ -45,15 +44,22 @@ export class ChannelService {
           console.log("timeout")
           return observer.error("unable to join");
         });
-      if (!this.socket.isConnected()) {
-
-
+      if (this.socket.isConnected()) {
         this.channel.on("new_highscore", msg => {
           let score = Score.parse_score(msg);
           return observer.next(score);
         });
       }
     });
+  }
+
+  create_game(game_id: String, deck: Deck) {
+    this.channel.push("create_game", { game_id: game_id, deck_id: deck.id })
+      .receive("ok", payload => console.log("phoenix replied:", payload))
+      .receive("error", err => console.log("phoenix errored", err))
+      .receive("timeout", () => console.log("timed out pushing"))
+
+
   }
 
 

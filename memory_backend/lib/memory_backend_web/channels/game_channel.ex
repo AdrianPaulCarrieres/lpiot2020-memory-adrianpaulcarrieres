@@ -39,9 +39,11 @@ defmodule MemoryBackendWeb.GameChannel do
 
   def handle_in(
         "create_game",
-        %{game_id: game_id, deck: deck = %Deck{}},
+        %{"game_id" => game_id, "deck_id" => deck_id},
         socket = %Phoenix.Socket{topic: "game:general"}
       ) do
+    deck = %MemoryBackend.Model.Deck{id: deck_id}
+
     case Index.create_game(game_id, deck, socket.assigns.player) do
       {:ok, game} ->
         {:reply, {:ok, game}, socket}

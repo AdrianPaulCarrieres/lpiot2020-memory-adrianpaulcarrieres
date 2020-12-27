@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChannelService } from './../services/channel.service';
 
 import { Score } from './../models/score.model';
+import { Deck } from '../models';
 
 @Component({
   selector: 'app-lobby',
@@ -30,5 +31,9 @@ export class LobbyComponent implements OnInit {
           console.log("Observable has completed Execution");
         }
       })
+  }
+
+  create_game(game_id: String, deck: Deck){
+    this.channelService.create_game(game_id, deck);
   }
 }
