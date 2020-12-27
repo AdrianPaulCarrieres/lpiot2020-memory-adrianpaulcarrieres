@@ -34,7 +34,8 @@ export class ChannelService {
         .receive("ok", resp => {
           console.log("Joined successfully");
           console.table(resp.decks);
-          this.decks = this.parse_decks(resp.decks);
+          this.decks = Deck.parse_decks(resp.decks);
+          console.table(this.decks);
         })
         .receive("error", resp => {
           console.log("Unable to join", resp);
@@ -55,12 +56,6 @@ export class ChannelService {
     });
   }
 
-  parse_decks(array_to_parse: [string]): [Deck] {
-    var decks: [Deck] = [null]
-    for (var i = 0; i < array_to_parse.length; i++) {
-      decks.push(new Deck(array_to_parse[i]));
-    }
-    return decks;
-  }
+  
 
 }

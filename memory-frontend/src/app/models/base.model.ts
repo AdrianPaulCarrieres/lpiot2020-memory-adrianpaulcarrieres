@@ -1,15 +1,10 @@
-import * as _ from 'lodash';
-
 export class BaseModel {
 
   public id: string;
-  [key: string]: any;
 
   constructor(private data?: any) {
-    if (data) {
-      if(_.size(data.attributes) > 0) {
-        _.extend(this, data.attributes);
-      }
+    if (data.id) {
+      this.id = data.id;
       delete this.data;
     }
   }
