@@ -237,7 +237,8 @@ defmodule MemoryBackend.Model do
       from s in MemoryBackend.Model.Score,
         where: s.deck_id == ^deck_id,
         limit: 10,
-        order_by: [asc: s.score]
+        order_by: [asc: s.score],
+        preload: [:players]
     )
   end
 
