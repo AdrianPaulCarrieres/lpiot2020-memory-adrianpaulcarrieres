@@ -2,6 +2,8 @@ defmodule MemoryBackend.Model.Score do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :deck_id, :score, :players]}
+
   schema "scores" do
     field :score, :integer
 

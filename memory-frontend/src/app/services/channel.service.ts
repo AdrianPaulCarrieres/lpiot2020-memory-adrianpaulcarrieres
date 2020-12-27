@@ -16,19 +16,21 @@ export class ChannelService {
   public socket: any;
   public channel: any;
 
-  constructor() { }
+  constructor() {
+    this.connect();
+   }
 
   connect(): void{
-    this.socket = new Phoenix.Socket(environment.socket_endpoint + '/map_socket', {
-      //logger: (kind, msg, data) => { console.log('%s: %s', kind, msg, data) }
-    });
+    this.socket = new Phoenix.Socket(environment.socket_endpoint + '/socket', {params: {player: "123"}});
 
     this.socket.connect();
+    console.log(this.socket.isConnected())
+    this.join_lobby();
   }
 
-  join_lobby(): Observable<Score[]>{
-    return Observable.create((observer: Observer<Score>) => {
-      if (this.socket.isConnected()) {
+  join_lobby(): Observable<Score>{
+    return new Observable((observer: Observer<Score>) => {
+      if (!this.socket.isConnected()) {
         this.channel = this.socket.channel('game:general');
         this.channel.join()
           .receive("ok", resp => {

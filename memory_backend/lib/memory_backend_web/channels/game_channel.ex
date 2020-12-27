@@ -6,9 +6,9 @@ defmodule MemoryBackendWeb.GameChannel do
   def join("game:general", _payload, socket) do
     decks = MemoryBackend.Model.list_decks_with_scores()
 
-    topics = for deck_theme <- decks.theme, do: "game:#{deck_theme}"
+    topics = for deck <- decks, do: "game:#{deck.theme}"
 
-    {:ok,
+    {:ok, %{decks: decks},
      socket
      |> assign(:topics, [])
      |> subscribe_to_high_scores_topics(topics)}
