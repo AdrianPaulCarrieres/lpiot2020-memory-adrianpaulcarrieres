@@ -64,7 +64,7 @@ defmodule MemoryBackendWeb.GameChannel do
     end
   end
 
-  def handle_in("find_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do
+  def handle_in("get_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do
     case Index.find_game(game_id) do
       {:ok, game} -> {:reply, {:ok, game}, socket}
       error_tuple -> {:reply, error_tuple, socket}
@@ -73,7 +73,7 @@ defmodule MemoryBackendWeb.GameChannel do
 
   def handle_in(
         "flip_card",
-        {card_index, turn},
+        %{"card_index" => card_index, "turn" => turn},
         socket = %Phoenix.Socket{topic: "game:" <> game_id}
       ) do
     active_player = socket.assigns.player
