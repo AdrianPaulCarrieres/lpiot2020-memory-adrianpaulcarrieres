@@ -23,7 +23,6 @@ export class ChannelService {
   public game: Game;
 
   constructor() {
-    this.connect();
   }
 
   connect(): void {

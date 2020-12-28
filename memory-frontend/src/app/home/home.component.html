@@ -1,1 +1,8 @@
-<p>home works!</p>
+<div>
+  <label>Veuillez saisir votre pseudo :
+    <input #playerName id=player-name [(ngModel)]="player.player_name" placeholder="Votre super pseudo !" />
+  </label>
+  <div>
+    <button (click)="this.startGame(playerName.value)">Let's go !</button>
+  </div>
+</div>
