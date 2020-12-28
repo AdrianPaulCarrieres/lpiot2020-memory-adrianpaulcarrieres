@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChannelService } from './../services/channel.service';
 
 import { Card, Deck } from '../models';
+import { ApiService } from '../services/api-service/api.service';
 
 @Component({
   selector: 'app-lobby',
@@ -14,7 +15,7 @@ export class LobbyComponent implements OnInit {
   false_images: [Card]
   game_id: String
 
-  constructor(private channelService: ChannelService) { }
+  constructor(private channelService: ChannelService, private apiService: ApiService) { }
 
   ngOnInit(): void {
     this.join_lobby();
@@ -53,15 +54,16 @@ export class LobbyComponent implements OnInit {
         }
       }
       if(!flag){
-        
+        this.apiService.get_deck_image(deck.id).subscribe(resp => {
+          deck.card_back = resp.card_back;
+          this.decks.push(deck);
+        });
       }
-      this.decks.forEach(element => {
-        if (element.id == deck.id) {
-          element = deck;
-        }
-      });
     }
     else {
+      this.apiService.get_deck_image(deck.id).subscribe(resp => {
+        deck.card_back = resp.card_back;
+      });
       this.decks = [deck];
       this.populate_false_images();
     }

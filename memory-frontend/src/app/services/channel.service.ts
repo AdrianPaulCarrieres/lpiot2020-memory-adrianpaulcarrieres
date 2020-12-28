@@ -4,8 +4,6 @@ import { Observable, Observer } from 'rxjs';
 
 import * as Phoenix from 'phoenix';
 
-
-import { Score } from '../models/score.model';
 import { Deck } from '../models/deck.model';
 import { Game } from '../models/game.model';
 

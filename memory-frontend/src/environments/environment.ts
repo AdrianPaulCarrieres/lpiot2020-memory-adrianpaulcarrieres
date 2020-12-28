@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  socket_endpoint: 'ws://localhost:4000'
+  socket_endpoint: 'ws://localhost:4000',
+  api_endpoint: 'localhost:4000/api'
 };
 
 /*
