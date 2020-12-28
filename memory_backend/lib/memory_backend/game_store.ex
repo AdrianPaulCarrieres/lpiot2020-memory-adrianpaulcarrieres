@@ -23,7 +23,7 @@ defmodule MemoryBackend.GameStore do
   Set game in game store agent
   """
   def set(pid, game = %MemoryBackend.Game{}) do
-    Logger.info("Game updated #{inspect(game)}")
+    # Logger.info("Game updated #{inspect(game)}")
     Agent.update(pid, fn _old_game -> game end)
   end
 end

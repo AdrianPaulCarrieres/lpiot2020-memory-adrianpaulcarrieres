@@ -163,7 +163,9 @@ defmodule MemoryBackend.Index.Server do
       Map.get(games, id)
       |> Agent.stop()
 
-      MemoryBackendWeb.Endpoint.broadcast!("general:" <> id, "disconnect", %{
+      Logger.info("Stopped game #{id}")
+
+      MemoryBackendWeb.Endpoint.broadcast("game:#{id}", "disconnect", %{
         msg: "Quit the game"
       })
 

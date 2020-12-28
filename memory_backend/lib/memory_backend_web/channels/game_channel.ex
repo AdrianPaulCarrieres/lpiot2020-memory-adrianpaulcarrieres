@@ -3,7 +3,6 @@ defmodule MemoryBackendWeb.GameChannel do
   require Logger
 
   alias MemoryBackend.Index
-  alias MemoryBackend.Model.Deck
 
   def join("game:general", _payload, socket) do
     decks = MemoryBackend.Model.list_decks_with_scores()
@@ -71,7 +70,7 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.start_game(game_id) do
       {:ok, game} ->
         broadcast!(socket, "start_game", %{game: game})
-        {:noreply, socket}
+        {:reply, {:ok, "Game has been started"}, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}

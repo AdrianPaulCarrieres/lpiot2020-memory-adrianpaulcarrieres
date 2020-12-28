@@ -48,12 +48,11 @@ export class ChannelService {
           console.log("timeout")
           return observer.error("unable to join");
         });
-      if (this.socket.isConnected()) {
-        this.channel.on("new_highscore", msg => {
-          let score = Score.parse_score(msg);
-          return observer.next(score);
-        });
-      }
+
+      this.channel.on("new_highscore", msg => {
+        let score = Score.parse_score(msg);
+        return observer.next(score);
+      });
     });
   }
 
@@ -72,14 +71,18 @@ export class ChannelService {
 
   }
 
-  join_game(game_id: String){
+  join_game(game_id: String) {
     console.log("join game in service")
     this.channel = this.socket.channel("game:" + game_id);
     this.channel.join()
-    .receive("ok", resp => {
-      console.log("Joined game successfully");
-      this.game = resp.game;
-    })
+      .receive("ok", resp => {
+        console.log("Joined game successfully");
+        this.game = resp.game;
+      })
+
+    this.channel.on("disconnect", msg => {
+      console.log("Game has been stopped. : " + msg)
+    });
   }
 
 
@@ -87,9 +90,9 @@ export class ChannelService {
 
   start_game() {
     this.channel.push("start_game", {})
-      .receive("ok", payload => console.log("phoenix replied:", payload))
-      .receive("error", err => alert("Start game errored " + err))
-      .receive("timeout", () => alert("timed out pushing"))
+      .receive("ok", payload => console.log("Start Game : phoenix replied: ", payload))
+      .receive("error", err => alert("Start Game : errored " + err))
+      .receive("timeout", () => alert("Start Game : timed out pushing"))
   }
 
   get_game() {
