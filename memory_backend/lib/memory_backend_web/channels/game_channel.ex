@@ -26,7 +26,8 @@ defmodule MemoryBackendWeb.GameChannel do
 
         {:ok, %{game: game},
          socket
-         |> unsubscribe_to_other_high_scores_topics(game.deck)}
+         |> assign(:topics, [])
+         |> subscribe_to_high_scores_topics([game.deck.theme])}
 
       {:reconnect, game} ->
         Logger.info("Player reconnected.")
@@ -34,14 +35,15 @@ defmodule MemoryBackendWeb.GameChannel do
 
         {:ok, %{game: game},
          socket
-         |> unsubscribe_to_other_high_scores_topics(game.deck)}
+         |> assign(:topics, [])
+         |> subscribe_to_high_scores_topics([game.deck.theme])}
 
       {:error, :no_game} ->
         Logger.info("No game found")
-        {:reply, {:error, "No game found"}, socket}
+        {:error, "No game found"}
 
       _ ->
-        {:reply, :error, socket}
+        {:error, "Unknown error"}
     end
   end
 
@@ -115,24 +117,5 @@ defmodule MemoryBackendWeb.GameChannel do
         assign(acc, :topics, [topic | topics])
       end
     end)
-  end
-
-  defp unsubscribe_to_other_high_scores_topics(socket, %Deck{theme: theme}) do
-    Enum.reduce(
-      socket.assign.topics,
-      socket,
-      fn topic_to_unsubscribe, acc ->
-        topics = acc.assigns.topics
-
-        if(topic_to_unsubscribe != "game:#{theme}") do
-          topics = List.delete(topics, topic_to_unsubscribe)
-
-          MemoryBackendWeb.Endpoint.unsubscribe(topic_to_unsubscribe)
-          assign(acc, :topics, topics)
-        else
-          acc
-        end
-      end
-    )
   end
 end

@@ -72,26 +72,14 @@ export class ChannelService {
 
   }
 
-  join_game(game_id: String): Observable<string> {
+  join_game(game_id: String){
     console.log("join game in service")
-    return new Observable((observer: Observer<string>) => {
-      this.channel = this.socket.channel('game:' + game_id);
-      console.log(this.channel)
-
-      this.channel.join()
-        .receive("ok", resp => {
-          console.log("Joined game successfully");
-          this.game = resp.game;
-        })
-        .receive("error", resp => {
-          console.log("Unable to join game", resp);
-          return observer.error("unable to join game");
-        })
-        .receive('timeout', () => {
-          console.log("timeout")
-          return observer.error("unable to join game");
-        });
-    });
+    this.channel = this.socket.channel("game:" + game_id);
+    this.channel.join()
+    .receive("ok", resp => {
+      console.log("Joined game successfully");
+      this.game = resp.game;
+    })
   }
 
 
