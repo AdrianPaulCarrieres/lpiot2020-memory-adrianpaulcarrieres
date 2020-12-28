@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Observable, Observer} from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 
 import * as Phoenix from 'phoenix';
 
 
 import { Score } from '../models/score.model';
 import { Deck } from '../models/deck.model';
-import {Game } from '../models/game.model';
+import { Game } from '../models/game.model';
 
 @Injectable({
   providedIn: 'root'
@@ -65,25 +65,34 @@ export class ChannelService {
       .receive("ok", payload => {
         console.log("phoenix replied:", payload);
         this.join_game(game_id);
-        this.start_game();
       })
       .receive("error", err => alert(err))
       .receive("timeout", () => alert("timed out pushing"))
 
   }
 
-  join_game(game_id: String) {
-    console.log("join game in service")
-    this.channel = this.socket.channel("game:" + game_id);
-    this.channel.join()
-      .receive("ok", resp => {
-        console.log("Joined game successfully");
-        this.topic = "game:general";
-        this.game = resp.game;
-      })
+  join_game(game_id: String): Observable<Game>{
+    return new Observable((observer: Observer<Game>) => {
+      this.channel = this.socket.channel("game:" + game_id);
+      this.channel.join()
+        .receive("ok", resp => {
+          console.log("Joined game successfully");
+          this.topic = "game:general";
+          this.game = resp.game;
+        })
+        .receive("error", resp => {
+          console.log("Unable to join", resp);
+          return observer.error("unable to join");
+        })
+        .receive('timeout', () => {
+          console.log("timeout")
+          return observer.error("unable to join");
+        });
 
-    this.channel.on("disconnect", msg => {
-      console.log("Game has been stopped. : " + msg)
+      this.channel.on("disconnect", msg => {
+        console.log("Game has been stopped. : " + msg)
+        return observer.complete();
+      });
     });
   }
 
