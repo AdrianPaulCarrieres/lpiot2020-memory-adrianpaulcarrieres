@@ -77,6 +77,7 @@ export class ChannelService {
     this.channel.join()
       .receive("ok", resp => {
         console.log("Joined game successfully");
+        this.topic = "game:general";
         this.game = resp.game;
       })
 
@@ -84,9 +85,6 @@ export class ChannelService {
       console.log("Game has been stopped. : " + msg)
     });
   }
-
-
-
 
   start_game() {
     this.channel.push("start_game", {})

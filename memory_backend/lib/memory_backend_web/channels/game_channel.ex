@@ -21,7 +21,7 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.join_game(game_id, player) do
       {:ok, game} ->
         Logger.info("New player joined.")
-        broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
+        broadcast!(socket, "new_player", %{game: game})
 
         {:ok, %{game: game},
          socket

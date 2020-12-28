@@ -3,7 +3,17 @@ defmodule MemoryBackend.Game do
   Defining game.
   """
 
-  @derive Jason.Encoder
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :deck,
+             :state,
+             :players,
+             :cards_list,
+             :last_flipped_indexes,
+             :turn_count,
+             :flipped_count
+           ]}
 
   defstruct id: "000000",
             deck: %MemoryBackend.Model.Deck{},
