@@ -6,7 +6,7 @@ import { Card, Deck } from '../models';
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
-  styleUrls: ['./lobby.component.css']
+  styleUrls: ['./lobby.component.css'],
 })
 export class LobbyComponent implements OnInit {
 
@@ -18,38 +18,53 @@ export class LobbyComponent implements OnInit {
 
   ngOnInit(): void {
     this.join_lobby();
-    this.decks = this.channelService.decks;
-    this.populate_false_images();
   }
 
-  private populate_false_images(){
-    for(var i = 0; i < this.decks.length; i++){
+  private populate_false_images() {
+    for (var i = 0; i < this.decks.length; i++) {
       var deck = this.decks[i];
       var card = new Card(deck.id, false);
       card.image = deck.card_back;
-      this.false_images.push(card);
+      if (!this.false_images) {
+        this.false_images = [card]
+      } else {
+
+        this.false_images.push(card);
+      }
     }
   }
 
   join_lobby(): void {
     this.channelService.join_lobby()
-      .subscribe({
-        next: function (deck: Deck) {
-          this.updateDecks(deck);
-        }, error: function (errorMessage) {
-          console.log("Recieved the error with following message: " + errorMessage);
-        }, complete: function () {
-          console.log("Observable has completed Execution");
-        }
-      })
+      .subscribe(deck => {
+        console.log(deck);
+        this.updateDecks(deck);
+      });
   }
 
   updateDecks(deck: Deck) {
-    this.decks.forEach(element => {
-      if(element.id == deck.id){
-        element = deck;
+    if (this.decks) {
+      var flag = false;
+      for(var i = 0; i < this.decks.length; i++){
+        if (this.decks[i].id == deck.id) {
+          this.decks[i] = deck;
+          flag = true;
+          break;
+        }
       }
-    });
+      if(!flag){
+        
+      }
+      this.decks.forEach(element => {
+        if (element.id == deck.id) {
+          element = deck;
+        }
+      });
+    }
+    else {
+      this.decks = [deck];
+      this.populate_false_images();
+    }
   }
 
   create_game(game_id: String, deck_id: String) {
@@ -65,7 +80,7 @@ export class LobbyComponent implements OnInit {
     this.channelService.start_game();
   }
 
-  deckClicked(index: Number){
+  deckClicked(index: Number) {
     this.channelService.create_game(this.game_id, index.toString());
   }
 }

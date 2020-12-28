@@ -1,7 +1,5 @@
 <div class="p-16">
-    <p class="text-center">Tap on a card to flip it. You can only flip a maximum of two cards at a time. A match will
-      remove
-      those cards!</p>
+    <p class="text-center">Si vous voulez créer une partie, entrez un identifiant de partie puis clickez sur le deck de votre choix ! Autrement, entrez l'identifiant et appuyez sur "Rejoindre" !</p>
     <div class="grid p-16">
       <app-game-card *ngFor="let c of decks; let idx=index" [card]="false_images[idx]" [deck]="decks[idx]" (cardClicked)="deckClicked(idx)">
       </app-game-card>
