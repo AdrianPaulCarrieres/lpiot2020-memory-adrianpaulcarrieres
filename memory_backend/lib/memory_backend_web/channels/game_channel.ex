@@ -1,5 +1,7 @@
 defmodule MemoryBackendWeb.GameChannel do
   use MemoryBackendWeb, :channel
+  require Logger
+
   alias MemoryBackend.Index
   alias MemoryBackend.Model.Deck
 
@@ -19,13 +21,15 @@ defmodule MemoryBackendWeb.GameChannel do
 
     case Index.join_game(game_id, player) do
       {:ok, game} ->
+        Logger.info("New player joined.")
         broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
 
-        {:ok,
+        {:ok, %{game: game},
          socket
          |> unsubscribe_to_other_high_scores_topics(game.deck)}
 
       {:reconnect, game} ->
+        Logger.info("Player reconnected.")
         socket = assign(socket, :game_id, game_id)
 
         {:ok, %{game: game},
@@ -33,7 +37,11 @@ defmodule MemoryBackendWeb.GameChannel do
          |> unsubscribe_to_other_high_scores_topics(game.deck)}
 
       {:error, :no_game} ->
-        {:error, %{reason: "Game doesn't exists"}}
+        Logger.info("No game found")
+        {:reply, {:error, "No game found"}, socket}
+
+      _ ->
+        {:reply, :error, socket}
     end
   end
 
@@ -51,6 +59,10 @@ defmodule MemoryBackendWeb.GameChannel do
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
     end
+  end
+
+  def handle_in("start_game", _payload, socket = %Phoenix.Socket{topic: "game:general"}) do
+    {:reply, {:error, "Wrong topic"}, socket}
   end
 
   def handle_in("start_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do

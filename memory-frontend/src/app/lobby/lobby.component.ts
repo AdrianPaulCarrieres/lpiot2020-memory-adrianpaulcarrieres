@@ -16,10 +16,19 @@ export class LobbyComponent implements OnInit {
   constructor(private channelService: ChannelService) { }
 
   ngOnInit(): void {
-    this.joinLobby();
+    this.join_lobby();
+    this.create_game("123", "1");
+    
+    //this.start_game();
+    //this.join_game("123");
+
+
+
+
+    //this.join_game("123");
   }
 
-  joinLobby(): void {
+  join_lobby(): void {
     this.channelService.join_lobby()
       .subscribe({
         next: function (score) {
@@ -33,7 +42,21 @@ export class LobbyComponent implements OnInit {
       })
   }
 
-  create_game(game_id: String, deck: Deck){
-    this.channelService.create_game(game_id, deck);
+
+
+  create_game(game_id: String, deck_id: String) {
+    if (this.scores != []) {
+      this.channelService.create_game(game_id, deck_id);
+    }
+  }
+
+  join_game(game_id: String) {
+    this.channelService.join_game(game_id);
+    
+    console.log("join game is fucked up")
+  }
+
+  start_game(){
+    this.channelService.start_game();
   }
 }

@@ -16,7 +16,10 @@ export class ChannelService {
   public socket: any;
   public channel: any;
   public decks: [Deck];
-  private player_name: String = "Your name here"
+
+  private topic: String = "";
+  public player_name: String = "Your name here"
+  public game;
 
   constructor() {
     this.connect();
@@ -35,6 +38,7 @@ export class ChannelService {
         .receive("ok", resp => {
           console.log("Joined successfully");
           this.decks = Deck.parse_decks(resp.decks);
+          this.topic = "game:general";
         })
         .receive("error", resp => {
           console.log("Unable to join", resp);
@@ -53,41 +57,72 @@ export class ChannelService {
     });
   }
 
-  
-
-  create_game(game_id: String, deck: Deck) {
-    if (this.channel == "game:general") {
-      this.channel.push("create_game", { game_id: game_id, deck_id: deck.id })
-        .receive("ok", payload => console.log("phoenix replied:", payload))
-        .receive("error", err => alert(err))
-        .receive("timeout", () => alert("timed out pushing"))
+  create_game(game_id: String, deck_id: String) {
+    if (this.topic != "game:general") {
+      this.join_lobby();
     }
+    this.channel.push("create_game", { game_id: game_id, deck_id: deck_id })
+      .receive("ok", payload => {
+        console.log("phoenix replied:", payload);
+        this.join_game(game_id);
+        this.start_game();
+      })
+      .receive("error", err => alert(err))
+      .receive("timeout", () => alert("timed out pushing"))
+
   }
 
+  join_game(game_id: String): Observable<string> {
+    console.log("join game in service")
+    return new Observable((observer: Observer<string>) => {
+      this.channel = this.socket.channel('game:' + game_id);
+      console.log(this.channel)
+
+      this.channel.join()
+        .receive("ok", resp => {
+          console.log("Joined game successfully");
+          this.game = resp.game;
+        })
+        .receive("error", resp => {
+          console.log("Unable to join game", resp);
+          return observer.error("unable to join game");
+        })
+        .receive('timeout', () => {
+          console.log("timeout")
+          return observer.error("unable to join game");
+        });
+    });
+  }
+
+
+
+
   start_game() {
-    if (this.channel != "game:general") {
-      this.channel.push("start_game", {})
-        .receive("ok", payload => console.log("phoenix replied:", payload))
-        .receive("error", err => alert(err))
-        .receive("timeout", () => alert("timed out pushing"))
-    }
+    this.channel.push("start_game", {})
+      .receive("ok", payload => console.log("phoenix replied:", payload))
+      .receive("error", err => alert("Start game errored " + err))
+      .receive("timeout", () => alert("timed out pushing"))
   }
 
   get_game() {
-    if (this.channel != "game:general") {
+    if (this.topic != "game:general") {
       this.channel.push("get_game", {})
         .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
         .receive("timeout", () => alert("timed out pushing"))
+    } else {
+      alert("Not in game");
     }
   }
 
   flip_card(card_index: Number, turn: Number) {
-    if (this.channel != "game:general") {
+    if (this.topic != "game:general") {
       this.channel.push("flip_card", { card_index: card_index, turn: turn })
         .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
         .receive("timeout", () => alert("timed out pushing"))
+    } else {
+      alert("Not in game");
     }
   }
 
