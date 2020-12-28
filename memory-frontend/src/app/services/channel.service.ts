@@ -37,8 +37,11 @@ export class ChannelService {
       this.channel.join()
         .receive("ok", resp => {
           console.log("Joined successfully");
-          this.decks = Deck.parse_decks(resp.decks);
           this.topic = "game:general";
+          this.decks = Deck.parse_decks(resp.decks);
+          this.decks.forEach(element => {
+            return observer.next(element);
+          });
         })
         .receive("error", resp => {
           console.log("Unable to join", resp);
