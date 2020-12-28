@@ -3,11 +3,11 @@ defmodule MemoryBackendWeb.DeckView do
   alias MemoryBackendWeb.{DeckView, CardView}
 
   def render("index.json", %{decks: decks}) do
-    %{data: render_many(decks, DeckView, "deck.json")}
+    render_many(decks, DeckView, "deck.json")
   end
 
   def render("show.json", %{deck: deck}) do
-    %{data: render_one(deck, DeckView, "deck_with_cards.json")}
+    render_one(deck, DeckView, "deck_with_cards.json")
   end
 
   def render("deck.json", %{deck: deck}) do
