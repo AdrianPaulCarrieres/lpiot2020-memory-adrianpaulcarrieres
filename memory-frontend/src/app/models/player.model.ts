@@ -11,7 +11,7 @@ export class Player {
 
     public static parse_players(array_to_parse: [any]): [Player] {
         var players: [Player] = [null];
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < array_to_parse.length; i++) {
             var data = array_to_parse[i];
             players.push(new Player(data.id, data.player_name));
         }

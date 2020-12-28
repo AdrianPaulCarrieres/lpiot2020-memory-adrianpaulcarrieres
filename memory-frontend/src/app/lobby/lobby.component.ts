@@ -17,7 +17,7 @@ export class LobbyComponent implements OnInit {
 
   ngOnInit(): void {
     this.join_lobby();
-    this.create_game("123", "1");
+    //this.create_game("123", "1");
     
     //this.start_game();
     //this.join_game("123");

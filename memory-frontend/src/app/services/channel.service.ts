@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Observable, Observer, of } from 'rxjs';
+import { Observable, Observer} from 'rxjs';
 
 import * as Phoenix from 'phoenix';
 
 
 import { Score } from '../models/score.model';
 import { Deck } from '../models/deck.model';
+import {Game } from '../models/game.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class ChannelService {
 
   private topic: String = "";
   public player_name: String = "Your name here"
-  public game;
+  public game: Game;
 
   constructor() {
     this.connect();

@@ -14,7 +14,7 @@ export class Score{
 
     public static parse_scores(array_to_parse: [any]): [Score] {
         var scores: [Score] = [null];
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < array_to_parse.length; i++) {
             var data = array_to_parse[i];
             scores.push(new Score(data.id, data.score, Player.parse_players(data.players)))
         }
