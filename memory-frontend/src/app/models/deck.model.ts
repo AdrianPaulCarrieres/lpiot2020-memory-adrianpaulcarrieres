@@ -1,39 +1,29 @@
-import { BaseModel } from './base.model';
 import { Score } from './score.model';
-import { Card } from './card.model';
 
-export interface DeckInterface {
-    card_back: string
-    scores: [Score]
-}
+export class Deck {
 
-export class Deck extends BaseModel implements DeckInterface {
-
-    card_back: string
+    id: String
+    card_back: String
     scores: [Score]
 
 
-    constructor(data?: any) {
-        super(data);
-        if (data.card_back) {
-            this.card_back = data.card_back;
-        }
-        if (data.scores) {
-            this.scores = Score.parse_scores(data.scores);
-        }
+    constructor(id: String, scores: [Score]) {
+        this.id = id;
+        this.scores = scores;
     }
 
-    public static parse_decks(array_to_parse: [string]): [Deck] {
+    public static parse_decks(array_to_parse: [any]): [Deck] {
         var decks: [Deck] = [null]
         for (var i = 0; i < array_to_parse.length; i++) {
-            decks.push(new Deck(array_to_parse[i]));
+            var data = array_to_parse[i];
+            decks.push(new Deck(data.id, Score.parse_scores(data.scores)));
         }
         decks.splice(0, 1)
         return decks;
     }
 
-    public static parse_deck(data: String): Deck{
-        return new Deck(data);
+    public static parse_deck(data: any): Deck {
+        return new Deck(data.id, Score.parse_scores(data.scores));
     }
 
 

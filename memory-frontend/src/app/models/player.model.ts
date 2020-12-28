@@ -1,31 +1,25 @@
-import { BaseModel } from './base.model';
+export class Player {
 
-export interface PlayerInterface {
-    player_name: string
-}
-
-export class Player extends BaseModel implements PlayerInterface {
-
-    player_name: string
+    id: String
+    player_name: String
 
 
-    constructor(data?: any) {
-        super(data);
-        if (data.player_name) {
-            this.player_name = data.player_name;
-        }
+    constructor(id: String, player_name: String) {
+        this.id = id;
+        this.player_name = player_name;
     }
 
-    public static parse_players(data: [string]): [Player] {
+    public static parse_players(array_to_parse: [any]): [Player] {
         var players: [Player] = [null];
         for (var i = 0; i < data.length; i++) {
-            players.push(new Player(data[i]))
+            var data = array_to_parse[i];
+            players.push(new Player(data.id, data.player_name));
         }
         players.splice(0, 1);
         return players;
     }
 
-    public static parse_player(data: String): Player{
-        return new Player(data);
+    public static parse_player(data: any): Player {
+        return new Player(data.id, data.player_name);
     }
 }

@@ -23,26 +23,17 @@ export class Game {
         last_flipped_indexes: [Number],
         turn_count: Number,
         flipped_count: Number) {
-            this.id = id;
-            this.deck = deck;
-            state: String;
-            players: [Player];
-            cards_list: [Card];
-            last_flipped_indexes: [Number];
-            turn_count: Number;
-            flipped_count: Number;
+        this.id = id;
+        this.deck = deck;
+        this.state = state;
+        this.players = players;
+        this.cards_list = cards_list;
+        this.last_flipped_indexes = last_flipped_indexes;
+        this.turn_count = turn_count;
+        this.flipped_count = flipped_count;
     }
 
-    public static parse_players(data: [string]): [Player] {
-        var players: [Player] = [null];
-        for (var i = 0; i < data.length; i++) {
-            players.push(new Player(data[i]))
-        }
-        players.splice(0, 1);
-        return players;
-    }
-
-    public static parse_player(data: String): Player {
-        return new Player(data);
+    public static parse_game(message){
+        return new Game(message.id, Deck.parse_deck(message.deck), message.state, Player.parse_players(message.players), Card.parse_cards(message.cards), message.last_flipped_indexes, message.turn_count, message.flipped_count)
     }
 }

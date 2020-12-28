@@ -1,31 +1,26 @@
-import { BaseModel } from './base.model';
+export class Card {
 
-export interface CardInterface {
-    image: string
-}
-
-export class Card extends BaseModel implements CardInterface {
-
-    image: string
+    id: String
+    image: String
+    flipped: boolean
 
 
-    constructor(data?: any) {
-        super(data);
-        if (data.image) {
-            this.image = data.image;
-        }
+    constructor(id: String, flipped: boolean) {
+        this.id = id;
+        this.flipped = flipped;
     }
 
-    public static parse_image(array_to_parse: [string]): [Card] {
+    public static parse_cards(array_to_parse: [any]): [Card] {
         var cards: [Card] = [null]
         for (var i = 0; i < array_to_parse.length; i++) {
-            cards.push(new Card(array_to_parse[i]));
+            var data = array_to_parse[i];
+            cards.push(new Card(data.id, data.flipped));
         }
         cards.splice(0, 1)
         return cards;
     }
 
-    public static parse_card(data: String): Card{
-        return new Card(data);
+    public static parse_card(data: any): Card {
+        return new Card(data.id, data.flipped);
     }
 }
