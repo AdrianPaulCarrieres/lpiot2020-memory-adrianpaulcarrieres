@@ -47,7 +47,7 @@ defmodule MemoryBackend.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_psql_extras, "~> 0.2"},
-      {:cors_plug, "~> 1.5"}
+      {:corsica, "~> 1.0"}
     ]
   end
 

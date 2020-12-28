@@ -49,6 +49,7 @@ defmodule MemoryBackendWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
+  plug Corsica, origins: "*"
   plug Plug.Session, @session_options
   plug MemoryBackendWeb.Router
 end

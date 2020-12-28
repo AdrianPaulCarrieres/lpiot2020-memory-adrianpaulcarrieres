@@ -62,6 +62,7 @@ export class LobbyComponent implements OnInit {
     }
     else {
       this.apiService.get_deck_image(deck.id).subscribe(resp => {
+        console.log(resp);
         deck.card_back = resp.card_back;
       });
       this.decks = [deck];
