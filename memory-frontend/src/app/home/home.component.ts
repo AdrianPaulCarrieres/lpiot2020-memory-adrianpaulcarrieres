@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit {
   startGame(playerName: String) {
     if (playerName != "") {
       this.channelService.player_name = playerName;
+      this.channelService.connect();
       this.router.navigate(["/lobby"]);
     }
   }
