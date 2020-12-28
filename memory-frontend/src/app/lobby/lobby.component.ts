@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChannelService } from './../services/channel.service';
 
-import { Score } from './../models/score.model';
-import { Deck } from '../models';
+import { Card, Deck } from '../models';
 
 @Component({
   selector: 'app-lobby',
@@ -12,12 +11,24 @@ import { Deck } from '../models';
 export class LobbyComponent implements OnInit {
 
   decks: [Deck]
+  false_images: [Card]
+  game_id: String
 
   constructor(private channelService: ChannelService) { }
 
   ngOnInit(): void {
     this.join_lobby();
     this.decks = this.channelService.decks;
+    this.populate_false_images();
+  }
+
+  private populate_false_images(){
+    for(var i = 0; i < this.decks.length; i++){
+      var deck = this.decks[i];
+      var card = new Card(deck.id, false);
+      card.image = deck.card_back;
+      this.false_images.push(card);
+    }
   }
 
   join_lobby(): void {
@@ -52,5 +63,9 @@ export class LobbyComponent implements OnInit {
 
   start_game() {
     this.channelService.start_game();
+  }
+
+  deckClicked(index: Number){
+    this.channelService.create_game(this.game_id, index.toString());
   }
 }
