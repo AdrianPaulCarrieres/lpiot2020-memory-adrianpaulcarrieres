@@ -11,29 +11,20 @@ import { Deck } from '../models';
 })
 export class LobbyComponent implements OnInit {
 
-  scores: Score[]
+  decks: [Deck]
 
   constructor(private channelService: ChannelService) { }
 
   ngOnInit(): void {
     this.join_lobby();
-    //this.create_game("123", "1");
-    
-    //this.start_game();
-    //this.join_game("123");
-
-
-
-
-    //this.join_game("123");
+    this.decks = this.channelService.decks;
   }
 
   join_lobby(): void {
     this.channelService.join_lobby()
       .subscribe({
-        next: function (score) {
-          console.log("Score is " + score)
-          this.scores = this.scores.append(score)
+        next: function (deck: Deck) {
+          this.updateDecks(deck);
         }, error: function (errorMessage) {
           console.log("Recieved the error with following message: " + errorMessage);
         }, complete: function () {
@@ -42,21 +33,24 @@ export class LobbyComponent implements OnInit {
       })
   }
 
-
+  updateDecks(deck: Deck) {
+    this.decks.forEach(element => {
+      if(element.id == deck.id){
+        element = deck;
+      }
+    });
+  }
 
   create_game(game_id: String, deck_id: String) {
-    if (this.scores != []) {
-      this.channelService.create_game(game_id, deck_id);
-    }
+    this.channelService.create_game(game_id, deck_id);
+
   }
 
   join_game(game_id: String) {
     this.channelService.join_game(game_id);
-    
-    console.log("join game is fucked up")
   }
 
-  start_game(){
+  start_game() {
     this.channelService.start_game();
   }
 }

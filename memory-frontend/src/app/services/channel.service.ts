@@ -23,16 +23,16 @@ export class ChannelService {
   public game: Game;
 
   constructor() {
+    this.connect();
   }
 
   connect(): void {
     this.socket = new Phoenix.Socket(environment.socket_endpoint + '/socket', { params: { player: this.player_name } });
-
     this.socket.connect();
   }
 
-  join_lobby(): Observable<Score> {
-    return new Observable((observer: Observer<Score>) => {
+  join_lobby(): Observable<Deck> {
+    return new Observable((observer: Observer<Deck>) => {
       this.channel = this.socket.channel('game:general');
       this.channel.join()
         .receive("ok", resp => {
@@ -49,9 +49,9 @@ export class ChannelService {
           return observer.error("unable to join");
         });
 
-      this.channel.on("new_highscore", msg => {
-        let score = Score.parse_score(msg);
-        return observer.next(score);
+      this.channel.on("new_highscore", resp => {
+        let deck = Deck.parse_deck(resp.deck);
+        return observer.next(deck);
       });
     });
   }

@@ -174,8 +174,7 @@ defmodule MemoryBackend.Index.Impl do
       theme = deck.theme
 
       MemoryBackendWeb.Endpoint.broadcast!("game:" <> theme, "new_highscore", %{
-        deck_id: deck_id,
-        score: score.score
+        deck: deck
       })
 
       {score, true}
