@@ -27,8 +27,6 @@ export class GameComponent implements OnInit {
     this.channelService.join_game(game_id)
       .subscribe(game => {
         this.game = game;
-        console.log("game :" + game.cards_list[0].id);
       });
-
   }
 }
