@@ -34,9 +34,9 @@ export class GameComponent implements OnInit {
   }
 
   get_images() {
-    if (!this.deck) {
+    if(!this.deck){
       console.log(this.game.deck.id);
-      this.apiService.get_cards_image(this.game.deck.id).subscribe(resp => {
+      this.apiService.get_cards_image(this.game.deck.id).subscribe(resp =>{
         console.log("resp", resp);
         this.deck = this.game.deck;
         this.deck.card_back = resp.card_back;
@@ -44,7 +44,7 @@ export class GameComponent implements OnInit {
 
         var first_card_id = resp.cards[0].id;
         this.cards = this.game.cards_list;
-        for (var i = 0; i < this.cards.length; i++) {
+        for(var i = 0; i < this.cards.length; i++){
           var card = this.cards[i];
           //console.log("card.image", card);
           //card.image = resp.cards[+card.id + +first_card_id].image;
@@ -52,18 +52,11 @@ export class GameComponent implements OnInit {
           console.log("image at", card.id);
           card.set_image(image);
           this.cards[i] = card;
-
-
-          for (var i = 0; i < this.game.cards_list.length; i++) {
-            this.game.cards_list[i].image = this.cards[i].image;
-          }
         }
       })
     }
-    else {
-      for (var i = 0; i < this.game.cards_list.length; i++) {
-        this.game.cards_list[i].image = this.cards[i].image;
-      }
+    for(var i = 0; i < this.game.cards_list.length; i++){
+      this.game.cards_list[i].image = this.cards[i].image;
     }
   }
 
