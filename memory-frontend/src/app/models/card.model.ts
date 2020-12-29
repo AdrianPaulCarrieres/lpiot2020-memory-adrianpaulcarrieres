@@ -23,4 +23,8 @@ export class Card {
     public static parse_card(data: any): Card {
         return new Card(data.id, data.flipped);
     }
+
+    set_image(image: String){
+        this.image = image;
+    }
 }

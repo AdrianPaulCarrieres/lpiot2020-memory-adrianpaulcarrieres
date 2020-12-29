@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Game } from '../models';
+import { Card, Deck, Game } from '../models';
 import { ApiService } from '../services/api-service/api.service';
 import { ChannelService } from '../services/channel.service';
 import { ActivatedRoute } from '@angular/router';
@@ -13,6 +13,8 @@ import { Location } from '@angular/common';
 export class GameComponent implements OnInit {
 
   game: Game;
+  cards: [Card];
+  deck: Deck;
 
   constructor(private channelService: ChannelService, private apiService: ApiService, private route: ActivatedRoute,
     private location: Location) { }
@@ -27,25 +29,40 @@ export class GameComponent implements OnInit {
     this.channelService.join_game(game_id)
       .subscribe(game => {
         this.game = game;
-        //this.get_images();
+        this.get_images();
       });
   }
 
   get_images() {
-    if ((!this.game.deck.card_back) || this.game.deck.card_back == "") {
-      var deck = this.game.deck;
-      this.apiService.get_deck_image(deck.id).subscribe(resp => {
-        deck.card_back = resp.card_back;
-        this.game.deck = deck;
-      });
+    if (!this.deck) {
+      console.log(this.game.deck.id);
+      this.apiService.get_cards_image(this.game.deck.id).subscribe(resp => {
+        console.log("resp", resp);
+        this.deck = this.game.deck;
+        this.deck.card_back = resp.card_back;
 
-      var cards = this.game.cards_list;
-      for (var i = 0; i < cards.length; i++) {
-        var card = cards[i]
-        this.apiService.get_card_image(deck.id, card.id).subscribe(resp => {
-          card.image = resp.image;
-          cards[i] = card;
-        });
+
+        var first_card_id = resp.cards[0].id;
+        this.cards = this.game.cards_list;
+        for (var i = 0; i < this.cards.length; i++) {
+          var card = this.cards[i];
+          //console.log("card.image", card);
+          //card.image = resp.cards[+card.id + +first_card_id].image;
+          var image = resp.cards[+card.id - +first_card_id].image
+          console.log("image at", card.id);
+          card.set_image(image);
+          this.cards[i] = card;
+
+
+          for (var i = 0; i < this.game.cards_list.length; i++) {
+            this.game.cards_list[i].image = this.cards[i].image;
+          }
+        }
+      })
+    }
+    else {
+      for (var i = 0; i < this.game.cards_list.length; i++) {
+        this.game.cards_list[i].image = this.cards[i].image;
       }
     }
   }

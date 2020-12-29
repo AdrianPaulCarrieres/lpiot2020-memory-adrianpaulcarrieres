@@ -20,7 +20,11 @@ export class ApiService {
     return this.http.get<ApiDeckModel>(this.api + "/decks/" + id);
   }
 
-  get_cards_image(deck_id){
-    return this.http.get<ApiDeckModel>(this.api + "/decks/" + deck_id + "/cards/");
+  get_cards_image(deck_id: String){
+    return this.http.get<ApiDeckModel>(this.api + "/decks/" + deck_id);
+  }
+
+  get_card_image(deck_id: String, card_id: String){
+    return this.http.get<ApiCardModel>(this.api + "/decks/" + deck_id + "/cards/" + card_id);
   }
 }
