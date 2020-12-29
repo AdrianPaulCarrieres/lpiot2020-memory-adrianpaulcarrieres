@@ -7,6 +7,7 @@ import * as Phoenix from 'phoenix';
 import { Deck } from '../models/deck.model';
 import { Game } from '../models/game.model';
 import { ThrowStmt } from '@angular/compiler';
+import { delay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'

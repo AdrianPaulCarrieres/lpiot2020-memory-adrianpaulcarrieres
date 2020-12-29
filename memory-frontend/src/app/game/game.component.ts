@@ -4,6 +4,7 @@ import { ApiService } from '../services/api-service/api.service';
 import { ChannelService } from '../services/channel.service';
 import { ActivatedRoute } from '@angular/router';
 import { ThrowStmt } from '@angular/compiler';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-game',
@@ -19,8 +20,6 @@ export class GameComponent implements OnInit {
   turn: String = "0";
   number_of_flipped_cards: Number;
 
-  abonnement;
-
   constructor(private channelService: ChannelService, private apiService: ApiService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -31,24 +30,9 @@ export class GameComponent implements OnInit {
   join_game() {
     const game_id = this.route.snapshot.paramMap.get('game_id');
 
-
-    /*this.abonnement = {
-      next: x => {
-        console.log(x)
-        this.game = x;
-        this.get_images();
-      },
-      error: err => console.error('Observer got an error: ' + err),
-      complete: () => console.log('Observer got a complete notification'),
-    };
-
-    this.channelService.join_game(game_id).subscribe(this.abonnement);
-    */
-
-
     this.channelService.join_game(game_id)
+      .pipe(delay(500))
       .subscribe(game => {
-        console.log("ingame, state game", game);
         this.game = game;
         this.turn = game.turn_count;
         this.get_images();
@@ -82,15 +66,12 @@ export class GameComponent implements OnInit {
   }
 
   cardClicked(index) {
-    console.log(this.game.state);
     if (this.game.state == "ongoing") {
       var active_player = this.game.players[0];
-      console.log("card", this.game.cards_list[index]);
-      console.log("front player", this.channelService.player_name);
-      console.log("back player", active_player);
       if (this.channelService.player_name != active_player) {
         alert("Chacun son tour :p");
       } else if (!this.game.cards_list[index].flipped) {
+        this.game.cards_list[index].flipped = true;
         this.channelService.flip_card(index, this.game.turn_count);
       }
     }
