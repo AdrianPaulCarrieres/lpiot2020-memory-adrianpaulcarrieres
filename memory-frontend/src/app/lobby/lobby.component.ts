@@ -3,6 +3,7 @@ import { ChannelService } from './../services/channel.service';
 
 import { Card, Deck } from '../models';
 import { ApiService } from '../services/api-service/api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lobby',
@@ -15,7 +16,7 @@ export class LobbyComponent implements OnInit {
   false_images: [Card]
   game_id: String
 
-  constructor(private channelService: ChannelService, private apiService: ApiService) { }
+  constructor(private channelService: ChannelService, private apiService: ApiService, private router: Router) { }
 
   ngOnInit(): void {
     this.join_lobby();
@@ -57,7 +58,7 @@ export class LobbyComponent implements OnInit {
 
   join_game() {
     if (this.game_id && this.game_id != "") {
-      
+      this.router.navigate(["/game/" + this.game_id]);
     }
   }
 
@@ -65,7 +66,9 @@ export class LobbyComponent implements OnInit {
     if (this.game_id && this.game_id != "") {
       var deck = this.decks[index];
 
-      this.channelService.create_game(this.game_id, deck.id);
+      if(this.channelService.create_game(this.game_id, deck.id)){
+        this.join_game();
+      }
     }
   }
 }

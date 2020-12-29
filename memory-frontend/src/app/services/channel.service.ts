@@ -57,16 +57,24 @@ export class ChannelService {
     });
   }
 
-  create_game(game_id: String, deck_id: String) {
+  create_game(game_id: String, deck_id: String): boolean {
     if (this.topic != "game:general") {
       this.join_lobby();
     }
-    this.channel.push("create_game", { game_id: game_id, deck_id: deck_id })
+    return this.channel.push("create_game", { game_id: game_id, deck_id: deck_id })
       .receive("ok", payload => {
         console.log("phoenix replied:", payload);
+        return true;
       })
-      .receive("error", err => alert(err))
-      .receive("timeout", () => alert("Create game errored : timed out pushing"))
+      .receive("error", err => {
+        alert("Create game errored : " + err)
+        return false;
+      })
+
+      .receive("timeout", () => {
+        alert("Create game errored : timed out pushing")
+        return false;
+      })
 
   }
 
@@ -76,8 +84,9 @@ export class ChannelService {
       this.channel.join()
         .receive("ok", resp => {
           console.log("Joined game successfully");
-          this.topic = "game:general";
-          this.game = resp.game;
+          this.topic = "game:" + game_id;
+          this.game = Game.parse_game(resp.game);
+          return observer.next(this.game);
         })
         .receive("error", resp => {
           console.log("Unable to join", resp);

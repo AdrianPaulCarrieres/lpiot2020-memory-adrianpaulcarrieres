@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Game } from '../models';
+import { ApiService } from '../services/api-service/api.service';
+import { ChannelService } from '../services/channel.service';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-game',
@@ -7,17 +12,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GameComponent implements OnInit {
 
-  constructor() { }
+  game: Game;
+
+  constructor(private channelService: ChannelService, private apiService: ApiService, private route: ActivatedRoute,
+    private location: Location) { }
 
   ngOnInit(): void {
+    this.join_game();
   }
 
 
   join_game() {
-    if (this.game_id && this.game_id != "") {
-      console.log(this.game_id);
-      this.channelService.join_game(this.game_id);
-    }
-  }
+    const game_id = this.route.snapshot.paramMap.get('game_id');
+    this.channelService.join_game(game_id)
+      .subscribe(game => {
+        this.game = game;
+        console.log("game :" + game);
+      });
 
+  }
 }
