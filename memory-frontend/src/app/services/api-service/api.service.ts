@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { ApiCardModel } from './api-models/api-card.model';
 import { ApiDeckModel } from './api-models/api-deck.model';
 
 @Injectable({
@@ -19,5 +20,7 @@ export class ApiService {
     return this.http.get<ApiDeckModel>(this.api + "/decks/" + id);
   }
 
-  
+  get_cards_image(deck_id){
+    return this.http.get<ApiDeckModel>(this.api + "/decks/" + deck_id + "/cards/");
+  }
 }

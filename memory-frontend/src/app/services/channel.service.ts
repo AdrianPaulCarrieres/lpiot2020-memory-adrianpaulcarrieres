@@ -17,7 +17,7 @@ export class ChannelService {
   public decks: [Deck];
 
   private topic: String = "";
-  public player_name: String = "Your name here"
+  public player_name: String = "Adrian"
   public game: Game;
 
   constructor() {
@@ -97,12 +97,22 @@ export class ChannelService {
           return observer.error("unable to join");
         });
 
+      this.channel.on("start_game", msg => {
+        var game = Game.parse_game(msg.game);
+        console.log("Game has been started : " + game.state);
+        return observer.next(game);
+      })
+
+      this.channel.on("turn_played", msg => {
+        var game = Game.parse_game(msg.game);
+
+        console.log("turn has been played : " + game);
+        return observer.next(game);
+      })
       this.channel.onClose(() => {
         console.log("the channel has gone away gracefully")
         return observer.complete()
-      }
-
-      )
+      })
       this.channel.on("disconnect", msg => {
         console.log("Game has been stopped. : " + msg)
         return observer.complete();
@@ -112,17 +122,13 @@ export class ChannelService {
 
   start_game() {
     this.channel.push("start_game", {})
-      .receive("ok", payload => console.log("Start Game : phoenix replied: ", payload))
       .receive("error", err => alert("Start Game : errored " + err))
-      .receive("timeout", () => alert("Start Game : timed out pushing"))
   }
 
   get_game() {
     if (this.topic != "game:general") {
       this.channel.push("get_game", {})
-        .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
-        .receive("timeout", () => alert("Get game errored : timed out pushing"))
     } else {
       alert("Not in game");
     }
@@ -131,9 +137,7 @@ export class ChannelService {
   flip_card(card_index: Number, turn: Number) {
     if (this.topic != "game:general") {
       this.channel.push("flip_card", { card_index: card_index, turn: turn })
-        .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
-        .receive("timeout", () => alert("Flip Card errored : timed out pushing"))
     } else {
       alert("Not in game");
     }

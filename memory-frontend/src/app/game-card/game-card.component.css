@@ -1,0 +1,13 @@
+.back,
+.front {
+    border-radius: 5px;
+    backface-visibility: hidden;
+}
+
+.back {
+    transform: rotateY(0deg);
+}
+
+.front {
+    transform: rotateY(180deg);
+}

@@ -1,8 +1,8 @@
 <div class="card" (click)="cardClicked.emit()" [@cardFlip]="card.flipped">
     <div class="face back">
-        <img src="{{'data:image/jpg;base64,' + deck.card_back}}" />
+        <img src="{{'data:image/jpg;base64,' + deck.card_back}}"/>
     </div>
     <div class="face front">
-        <img [src]=card.image>
+        <img src="{{'data:image/jpg;base64,' + card.image}}"/>
     </div>
 </div>

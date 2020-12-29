@@ -21,7 +21,7 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.join_game(game_id, player) do
       {:ok, game} ->
         Logger.info("New player joined.")
-        broadcast!(socket, "new_player", %{game: game})
+        send(self(), {:after_join, game})
 
         {:ok, %{game: game},
          socket
@@ -44,6 +44,10 @@ defmodule MemoryBackendWeb.GameChannel do
       _ ->
         {:error, "Unknown error"}
     end
+  end
+
+  def handle_info(:after_join, {game}, socket) do
+    broadcast!(socket, "new_player", %{game: game})
   end
 
   def handle_in(
@@ -94,11 +98,11 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.flip_card(game_id, active_player, card_index, turn) do
       {:ok, {:ongoing, game}} ->
         broadcast!(socket, "turn_played", %{game: game})
-        {:no_reply, socket}
+        {:noreply, socket}
 
       {:ok, {:won, score}} ->
         broadcast!(socket, "game_won", %{score: score})
-        {:no_reply, socket}
+        {:noreply, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
