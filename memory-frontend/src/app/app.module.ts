@@ -10,6 +10,7 @@ import { GameComponent } from './game/game.component';
 import { HomeComponent } from './home/home.component';
 import { LobbyComponent } from './lobby/lobby.component';
 import { DeckComponent } from './deck/deck.component';
+import { ChannelService } from './services/channel.service';
 
 
 @NgModule({
@@ -28,7 +29,7 @@ import { DeckComponent } from './deck/deck.component';
     BrowserAnimationsModule,
     HttpClientModule,
   ],
-  providers: [],
+  providers: [ChannelService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

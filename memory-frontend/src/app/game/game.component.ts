@@ -3,12 +3,12 @@ import { Card, Deck, Game } from '../models';
 import { ApiService } from '../services/api-service/api.service';
 import { ChannelService } from '../services/channel.service';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
 })
 export class GameComponent implements OnInit {
 
@@ -16,8 +16,12 @@ export class GameComponent implements OnInit {
   cards: [Card];
   deck: Deck;
 
-  constructor(private channelService: ChannelService, private apiService: ApiService, private route: ActivatedRoute,
-    private location: Location) { }
+  turn: String = "0";
+  number_of_flipped_cards: Number;
+
+  abonnement;
+
+  constructor(private channelService: ChannelService, private apiService: ApiService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.join_game();
@@ -26,18 +30,36 @@ export class GameComponent implements OnInit {
 
   join_game() {
     const game_id = this.route.snapshot.paramMap.get('game_id');
-    this.channelService.join_game(game_id)
-      .subscribe(game => {
-        this.game = game;
+
+
+    this.abonnement = {
+      next: x => {
+        console.log(x)
+        this.game = x;
         this.get_images();
-      });
+      },
+      error: err => console.error('Observer got an error: ' + err),
+      complete: () => console.log('Observer got a complete notification'),
+    };
+
+    this.channelService.join_game(game_id).subscribe(this.abonnement);
+
+
+
+    /*this.channelService.join_game(game_id)
+      .subscribe(game => {
+        console.log("ingame, state game", game);
+        this.game = game;
+        this.turn = game.turn_count;
+        this.get_images();
+        return game;
+      });*/
   }
 
   get_images() {
     if(!this.deck){
       console.log(this.game.deck.id);
       this.apiService.get_cards_image(this.game.deck.id).subscribe(resp =>{
-        console.log("resp", resp);
         this.deck = this.game.deck;
         this.deck.card_back = resp.card_back;
 
@@ -46,10 +68,7 @@ export class GameComponent implements OnInit {
         this.cards = this.game.cards_list;
         for(var i = 0; i < this.cards.length; i++){
           var card = this.cards[i];
-          //console.log("card.image", card);
-          //card.image = resp.cards[+card.id + +first_card_id].image;
           var image = resp.cards[+card.id - +first_card_id].image
-          console.log("image at", card.id);
           card.set_image(image);
           this.cards[i] = card;
         }
@@ -67,6 +86,7 @@ export class GameComponent implements OnInit {
   }
 
   cardClicked(index) {
+    console.log(this.game.state);
     if (this.game.state == "ongoing") {
       var active_player = this.game.players[0];
       console.log("card", this.game.cards_list[index]);

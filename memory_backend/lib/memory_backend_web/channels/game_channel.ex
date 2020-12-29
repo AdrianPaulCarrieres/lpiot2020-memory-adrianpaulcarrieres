@@ -74,7 +74,7 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.start_game(game_id) do
       {:ok, game} ->
         broadcast!(socket, "start_game", %{game: game})
-        {:reply, {:ok, "Game has been started"}, socket}
+        {:reply, {:ok, game}, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}

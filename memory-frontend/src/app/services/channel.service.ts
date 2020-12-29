@@ -120,9 +120,12 @@ export class ChannelService {
     });
   }
 
-  start_game() {
+  start_game(){
     this.channel.push("start_game", {})
       .receive("error", err => alert("Start Game : errored " + err))
+      .receive("ok", resp =>{
+        console.log(resp);
+      })
   }
 
   get_game() {
@@ -134,7 +137,7 @@ export class ChannelService {
     }
   }
 
-  flip_card(card_index: Number, turn: Number) {
+  flip_card(card_index: String, turn: String) {
     if (this.topic != "game:general") {
       this.channel.push("flip_card", { card_index: card_index, turn: turn })
         .receive("error", err => alert(err))

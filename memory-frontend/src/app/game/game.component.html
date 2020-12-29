@@ -1,8 +1,13 @@
 <div>
-    <button (click)="this.start_game()">Let's go !</button>
-</div>
-<div class="grid p-16">
-    <app-game-card *ngFor="let c of game.cards_list; let idx=index" [card]="c" [deck]="game.deck"
-        (cardClicked)="cardClicked(idx)">
-    </app-game-card>
+    <div>
+        <label>Tour actuel : {{turn}}</label>
+    </div>
+    <div>
+        <button (click)="this.start_game()">Let's go !</button>
+    </div>
+    <div class="grid p-16">
+        <app-game-card *ngFor="let c of game.cards_list; let idx=index" [card]="c" [deck]="game.deck"
+            (cardClicked)="cardClicked(idx)">
+        </app-game-card>
+    </div>
 </div>

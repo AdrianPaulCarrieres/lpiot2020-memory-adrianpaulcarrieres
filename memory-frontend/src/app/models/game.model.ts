@@ -9,18 +9,18 @@ export class Game {
     state: String;
     players: [String];
     cards_list: [Card];
-    last_flipped_indexes: [Number];
-    turn_count: Number;
-    flipped_count: Number;
+    last_flipped_indexes: [String];
+    turn_count: String;
+    flipped_count: String;
 
     constructor(id: String,
         deck: Deck,
         state: String,
         players: [String],
         cards_list: [Card],
-        last_flipped_indexes: [Number],
-        turn_count: Number,
-        flipped_count: Number) {
+        last_flipped_indexes: [String],
+        turn_count: String,
+        flipped_count: String) {
         this.id = id;
         this.deck = deck;
         this.state = state;
