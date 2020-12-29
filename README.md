@@ -645,5 +645,65 @@ Ici on utilise aussi `broadcast!(socket, "start_game", %{game: game})` pour dire
 
 Côté front-end la partie la plus importante repose sur l'utilisation d'Observables :
 
+```typescript
+join_game(game_id: String): Observable<Game> {
+    return new Observable((observer: Observer<Game>) => {
+      this.channel = this.socket.channel("game:" + game_id);
+      this.channel.join()
+        .receive("ok", resp => {
+          console.log("Joined game successfully");
+          this.topic = "game:" + game_id;
+          this.game = Game.parse_game(resp.game);
+          return observer.next(this.game);
+        })
+```
 
+L'intérêt en fait réside dans le fait que lorsque notre socket va recevoir un message de la part de notre backend, tout module ou composant qui s'abonne à notre Observable soit notifié de la réponse du backend.
 
+```typescript
+this.channelService.join_game(game_id)
+      .pipe(delay(500))
+      .subscribe(game => {
+        this.game = game;
+        this.turn = game.turn_count;
+        this.get_images();
+        return game;
+      });
+  }
+```
+
+On va donc pouvoir dans notre composant Game mettre à jour nos cartes quand on recevra la mise à jour de la partie par un autre joueur.
+
+Ce fut je pense une des parties les plus compliquées du projet, j'ai dû passer une bonne journée à essayer de les faire fonctionner correctement, sans vraiment le succès que j'attendais, et ça nous amène à la prochaine partie.
+
+## Les améliorations
+
+### Contenu des messages
+
+Une des premières choses que je referais c'est le contenu des messages. Comme dit plus haut, j'envoie actuellement le jeu en entier (sans les images) à chaque message, ce qui provoque des problèmes de clignotement du côté front-end. C'est plutôt frustant.
+
+A la place j'aurais dû transmettre les transformations à effectuer sur le jeu. Le front-end aurait ainsi un peu de logique à appliquer et mettrait à jour lui même son état, plutôt que ce qu'il se passe actuellement où en fait le back-end lui tend directement un état à afficher à et à consommer.
+
+### Concurrence
+
+Malgré tout ce que j'ai pu dire sur les process, j'ai mal géré les miens. Une "simple" erreur de compréhension et une envie d'aller trop vite m'ont conduit à suivre une moitié du tutoriel sans lire quelques liens plus bas.
+
+En effet, ce qu'il se passe actuellement dans mon back-end, c'est que mes parties vivent chacune dans leur Agent, qui sont donc eux distribués entre mes coeurs de processeurs, tandis que mon GenServer Index, qui permet de retrouver une partie et d'appliquer des transformations dessus lui est unique. C'est un seul process qui s'occupe de transformer chaque partie.
+
+Non seulement ça pourrait être problématique avec une montée de charge, où le process serait en fait totalement noyé entre les messages de chaque joueur, les messages d'inactivités et les transformations ; mais ça pose aussi un problème de jouabilité : il n'y a aucun moyen de délayer le retournement de deux cartes si elles ne correspondent pas. Côté backend ça marche pour le joueur actif, parce que l'Observable à un délai entre plusieurs émissions, mais côté serveur je ne peux pas mettre de délai dans le traitement d'une requête parce qu'il n'y a qu'un seul process qui les gère.
+
+## Conclusion
+
+Ce fut possiblement un des meilleurs projets que j'ai pu faire. 
+
+J'ai rencontré beaucoup de difficultés avec Angular (et je ne parle même pas du CSS que j'ai à peine effleuré), mais j'ai découvert un framework Web qui me plait véritablement et qui parait se marier très bien avec Phoenix.
+
+Côté backend, ce fut mon premier gros projet d'Elixir et de Phoenix (au Québec j'avais seulement généré l'API avec Phoenix), et je dois dire que j'ai énormément appris et que je me suis beaucoup amusé.
+
+Elixir a vraiment changé ma manière de voir certaines choses et je suis aussi très content de me rendre compte après avoir codé que j'aurais dû mieux faire les choses, ce qui parait quand même assez ironique.
+
+Je reste toutefois frustré du résultat qui me déçoit un petit peu, je pense que j'ai passé trop de temps sur des erreurs un peu stupides d'Observable. J'ai peut-être aussi mis la barre un peu haute pour un projet pour lequel j'avais assez peu de temps finalement (on parle quand même d'un langage de programmation au paradigme différent et de deux frameworks). J'ai quand même assez de fierté d'avoir réussi à gérer ça et d'avoir ingéré autant de connaissances en si peu de temps.
+
+J'ai aussi plutôt bien géré mon github, je ne pensais pas être capable de le faire pour un projet en solo.
+
+En tout cas ce fut les 48h et plus de code les plus intensives et intéressantes de ma vie !
