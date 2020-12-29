@@ -32,7 +32,7 @@ export class GameComponent implements OnInit {
     const game_id = this.route.snapshot.paramMap.get('game_id');
 
 
-    this.abonnement = {
+    /*this.abonnement = {
       next: x => {
         console.log(x)
         this.game = x;
@@ -43,41 +43,36 @@ export class GameComponent implements OnInit {
     };
 
     this.channelService.join_game(game_id).subscribe(this.abonnement);
+    */
 
 
-
-    /*this.channelService.join_game(game_id)
+    this.channelService.join_game(game_id)
       .subscribe(game => {
         console.log("ingame, state game", game);
         this.game = game;
         this.turn = game.turn_count;
         this.get_images();
         return game;
-      });*/
+      });
   }
 
   get_images() {
-    if(!this.deck){
-      console.log(this.game.deck.id);
-      this.apiService.get_cards_image(this.game.deck.id).subscribe(resp =>{
-        this.deck = this.game.deck;
-        this.deck.card_back = resp.card_back;
+    console.log(this.game.deck.id);
+    this.apiService.get_cards_image(this.game.deck.id).subscribe(resp => {
+      this.deck = this.game.deck;
+      this.deck.card_back = resp.card_back;
 
 
-        var first_card_id = resp.cards[0].id;
-        this.cards = this.game.cards_list;
-        for(var i = 0; i < this.cards.length; i++){
-          var card = this.cards[i];
-          var image = resp.cards[+card.id - +first_card_id].image
-          card.set_image(image);
-          this.cards[i] = card;
-        }
-      })
-    }
-    /*
-    for(var i = 0; i < this.game.cards_list.length; i++){
-      this.game.cards_list[i].image = this.cards[i].image;
-    }*/
+      var first_card_id = resp.cards[0].id;
+      this.cards = this.game.cards_list;
+      for (var i = 0; i < this.cards.length; i++) {
+        var card = this.cards[i];
+        var image = resp.cards[+card.id - +first_card_id].image
+        card.set_image(image);
+        this.cards[i] = card;
+
+      }
+    })
   }
 
   start_game() {
