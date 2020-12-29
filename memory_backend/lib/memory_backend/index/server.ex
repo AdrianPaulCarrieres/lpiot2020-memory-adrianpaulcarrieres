@@ -75,14 +75,18 @@ defmodule MemoryBackend.Index.Server do
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
 
-      game =
-        GameStore.get(game_store)
-        |> Impl.start_game()
+      game = GameStore.get(game_store)
 
-      GameStore.set(game_store, game)
+      if(game.state == :stand_by) do
+        game = Impl.start_game(game)
 
-      Logger.info("Arming a new timer for game: #{inspect(id)}")
-      Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+        GameStore.set(game_store, game)
+
+        Logger.info("Arming a new timer for game: #{inspect(id)}")
+        Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+      else
+        Logger.info("Game was already going")
+      end
 
       {:reply, {:ok, game}, state}
     else
