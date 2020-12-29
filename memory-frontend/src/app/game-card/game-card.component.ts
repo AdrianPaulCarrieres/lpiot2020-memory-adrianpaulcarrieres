@@ -10,16 +10,16 @@ import { Card, Deck } from '../models';
   styleUrls: ['./game-card.component.css'],
   animations: [
     trigger('cardFlip', [
-      state('0', style({
+      state('false', style({
         transform: 'none',
       })),
-      state('1', style({
+      state('true', style({
         transform: 'perspective(600px) rotateY(180deg)'
       })),
-      transition('0 => 1', [
+      transition('false => true', [
         animate('400ms')
       ]),
-      transition('1 => 0', [
+      transition('true => false', [
         animate('400ms')
       ])
     ])
@@ -36,5 +36,4 @@ export class GameCardComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
 }
