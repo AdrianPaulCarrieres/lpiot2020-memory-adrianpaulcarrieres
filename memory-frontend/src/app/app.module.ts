@@ -9,6 +9,7 @@ import { GameCardComponent } from './game-card/game-card.component';
 import { GameComponent } from './game/game.component';
 import { HomeComponent } from './home/home.component';
 import { LobbyComponent } from './lobby/lobby.component';
+import { DeckComponent } from './deck/deck.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { LobbyComponent } from './lobby/lobby.component';
     LobbyComponent,
     HomeComponent,
     GameComponent,
-    GameCardComponent
+    GameCardComponent,
+    DeckComponent
   ],
   imports: [
     BrowserModule,

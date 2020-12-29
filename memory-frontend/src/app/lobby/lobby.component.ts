@@ -83,6 +83,7 @@ export class LobbyComponent implements OnInit {
   }
 
   deckClicked(index: Number) {
+    console.log(index)
     this.channelService.create_game(this.game_id, index.toString());
   }
 }
