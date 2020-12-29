@@ -12,4 +12,12 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
   }
 
+
+  join_game() {
+    if (this.game_id && this.game_id != "") {
+      console.log(this.game_id);
+      this.channelService.join_game(this.game_id);
+    }
+  }
+
 }

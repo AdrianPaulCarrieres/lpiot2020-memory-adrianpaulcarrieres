@@ -64,7 +64,6 @@ export class ChannelService {
     this.channel.push("create_game", { game_id: game_id, deck_id: deck_id })
       .receive("ok", payload => {
         console.log("phoenix replied:", payload);
-        this.join_game(game_id);
       })
       .receive("error", err => alert(err))
       .receive("timeout", () => alert("Create game errored : timed out pushing"))

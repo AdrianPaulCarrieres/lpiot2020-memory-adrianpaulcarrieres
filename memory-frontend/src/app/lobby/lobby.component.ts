@@ -55,14 +55,9 @@ export class LobbyComponent implements OnInit {
     }
   }
 
-  create_game(game_id: String, deck_id: String) {
-    //this.channelService.create_game(game_id, deck_id);
-  }
-
-  join_game(game_id: String) {
+  join_game() {
     if (this.game_id && this.game_id != "") {
-
-      this.channelService.join_game(game_id);
+      
     }
   }
 
