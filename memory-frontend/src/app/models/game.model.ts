@@ -4,8 +4,6 @@ import { Card } from './card.model';
 
 export class Game {
 
-
-
     id: String;
     deck: Deck;
     state: String;
@@ -34,6 +32,6 @@ export class Game {
     }
 
     public static parse_game(message){
-        return new Game(message.id, Deck.parse_deck(message.deck), message.state, Player.parse_players(message.players), Card.parse_cards(message.cards), message.last_flipped_indexes, message.turn_count, message.flipped_count)
+        return new Game(message.id, Deck.parse_deck(message.deck), message.state, Player.parse_players(message.players), Card.parse_cards(message.cards_list), message.last_flipped_indexes, message.turn_count, message.flipped_count)
     }
 }
