@@ -75,16 +75,22 @@ defmodule MemoryBackend.Index.Server do
     if Map.has_key?(games, id) do
       game_store = Map.get(games, id)
 
-      game =
-        GameStore.get(game_store)
-        |> Impl.start_game()
+      game = GameStore.get(game_store)
 
-      GameStore.set(game_store, game)
+      if(game.state == :stand_by) do
+        game = Impl.start_game(game)
 
-      Logger.info("Arming a new timer for game: #{inspect(id)}")
-      Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+        GameStore.set(game_store, game)
 
-      {:reply, {:ok, game}, state}
+        Logger.info("Arming a new timer for game: #{inspect(id)}")
+        # Process.send_after(self(), {:afk_player, {id, 0}}, 30000)
+
+        {:reply, {:ok, game}, state}
+      else
+        Logger.info("Game was already going")
+
+        {:reply, {:ok, game}, state}
+      end
     else
       {:reply, {:error, :no_game}, state}
     end
@@ -163,7 +169,9 @@ defmodule MemoryBackend.Index.Server do
       Map.get(games, id)
       |> Agent.stop()
 
-      MemoryBackendWeb.Endpoint.broadcast!("general:" <> id, "disconnect", %{
+      Logger.info("Stopped game #{id}")
+
+      MemoryBackendWeb.Endpoint.broadcast("game:#{id}", "disconnect", %{
         msg: "Quit the game"
       })
 

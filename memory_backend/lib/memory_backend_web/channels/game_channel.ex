@@ -1,12 +1,13 @@
 defmodule MemoryBackendWeb.GameChannel do
   use MemoryBackendWeb, :channel
+  require Logger
+
   alias MemoryBackend.Index
-  alias MemoryBackend.Model.Deck
 
   def join("game:general", _payload, socket) do
     decks = MemoryBackend.Model.list_decks_with_scores()
 
-    topics = for deck_theme <- decks.theme, do: "game:#{deck_theme}"
+    topics = for deck <- decks, do: "game:#{deck.theme}"
 
     {:ok, %{decks: decks},
      socket
@@ -19,29 +20,43 @@ defmodule MemoryBackendWeb.GameChannel do
 
     case Index.join_game(game_id, player) do
       {:ok, game} ->
-        broadcast!(socket, "new_player", %{game: game, player: socket.assigns.player})
+        Logger.info("New player joined.")
+        send(self(), {:after_join, game})
 
-        {:ok,
+        {:ok, %{game: game},
          socket
-         |> unsubscribe_to_other_high_scores_topics(game.deck)}
+         |> assign(:topics, [])
+         |> subscribe_to_high_scores_topics([game.deck.theme])}
 
       {:reconnect, game} ->
+        Logger.info("Player reconnected.")
         socket = assign(socket, :game_id, game_id)
 
         {:ok, %{game: game},
          socket
-         |> unsubscribe_to_other_high_scores_topics(game.deck)}
+         |> assign(:topics, [])
+         |> subscribe_to_high_scores_topics([game.deck.theme])}
 
       {:error, :no_game} ->
-        {:error, %{reason: "Game doesn't exists"}}
+        Logger.info("No game found")
+        {:error, "No game found"}
+
+      _ ->
+        {:error, "Unknown error"}
     end
+  end
+
+  def handle_info(:after_join, {game}, socket) do
+    broadcast!(socket, "new_player", %{game: game})
   end
 
   def handle_in(
         "create_game",
-        %{game_id: game_id, deck: deck = %Deck{}},
+        %{"game_id" => game_id, "deck_id" => deck_id},
         socket = %Phoenix.Socket{topic: "game:general"}
       ) do
+    deck = %MemoryBackend.Model.Deck{id: deck_id}
+
     case Index.create_game(game_id, deck, socket.assigns.player) do
       {:ok, game} ->
         {:reply, {:ok, game}, socket}
@@ -51,18 +66,22 @@ defmodule MemoryBackendWeb.GameChannel do
     end
   end
 
+  def handle_in("start_game", _payload, socket = %Phoenix.Socket{topic: "game:general"}) do
+    {:reply, {:error, "Wrong topic"}, socket}
+  end
+
   def handle_in("start_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do
     case Index.start_game(game_id) do
       {:ok, game} ->
         broadcast!(socket, "start_game", %{game: game})
-        {:noreply, socket}
+        {:reply, {:ok, game}, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
     end
   end
 
-  def handle_in("find_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do
+  def handle_in("get_game", _payload, socket = %Phoenix.Socket{topic: "game:" <> game_id}) do
     case Index.find_game(game_id) do
       {:ok, game} -> {:reply, {:ok, game}, socket}
       error_tuple -> {:reply, error_tuple, socket}
@@ -71,7 +90,7 @@ defmodule MemoryBackendWeb.GameChannel do
 
   def handle_in(
         "flip_card",
-        {card_index, turn},
+        %{"card_index" => card_index, "turn" => turn},
         socket = %Phoenix.Socket{topic: "game:" <> game_id}
       ) do
     active_player = socket.assigns.player
@@ -79,15 +98,26 @@ defmodule MemoryBackendWeb.GameChannel do
     case Index.flip_card(game_id, active_player, card_index, turn) do
       {:ok, {:ongoing, game}} ->
         broadcast!(socket, "turn_played", %{game: game})
-        {:no_reply, socket}
+        {:noreply, socket}
 
-      {:ok, {:won, score}} ->
-        broadcast!(socket, "game_won", %{score: score})
-        {:no_reply, socket}
+      {:ok, {:won, actual_score, is_better_than_any_high_score}} ->
+        broadcast!(socket, "game_won", %{
+          score: actual_score,
+          high_score: is_better_than_any_high_score
+        })
+
+        {:noreply, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
     end
+  end
+
+  alias Phoenix.Socket.Broadcast
+
+  def handle_info(%Broadcast{topic: _, event: event, payload: payload}, socket) do
+    push(socket, event, payload)
+    {:noreply, socket}
   end
 
   defp subscribe_to_high_scores_topics(socket, topics) do
@@ -101,24 +131,5 @@ defmodule MemoryBackendWeb.GameChannel do
         assign(acc, :topics, [topic | topics])
       end
     end)
-  end
-
-  defp unsubscribe_to_other_high_scores_topics(socket, %Deck{theme: theme}) do
-    Enum.reduce(
-      socket.assign.topics,
-      socket,
-      fn topic_to_unsubscribe, acc ->
-        topics = acc.assigns.topics
-
-        if(topic_to_unsubscribe != "game:#{theme}") do
-          topics = List.delete(topics, topic_to_unsubscribe)
-
-          MemoryBackendWeb.Endpoint.unsubscribe(topic_to_unsubscribe)
-          assign(acc, :topics, topics)
-        else
-          acc
-        end
-      end
-    )
   end
 end

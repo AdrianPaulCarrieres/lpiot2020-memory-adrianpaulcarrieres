@@ -2,6 +2,8 @@ defmodule MemoryBackend.Model.Deck do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, only: [:id, :theme, :scores]}
+
   schema "decks" do
     field :card_back, :binary
     field :theme, :string

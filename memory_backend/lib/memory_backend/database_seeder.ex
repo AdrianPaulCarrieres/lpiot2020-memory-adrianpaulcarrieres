@@ -27,10 +27,10 @@ defmodule MemoryBackend.DatabaseSeeder do
   end
 
   defp read_card_back(theme) do
-    File.read!("#{theme}/card_back.PNG")
+    File.read!("decks/#{theme}/card_back.PNG")
   end
 
   defp read_card(theme, card_name) do
-    File.read!("#{theme}/cards/#{card_name}.PNG")
+    File.read!("decks/#{theme}/cards/#{card_name}.PNG")
   end
 end

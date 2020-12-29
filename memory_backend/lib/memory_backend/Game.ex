@@ -3,6 +3,18 @@ defmodule MemoryBackend.Game do
   Defining game.
   """
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :deck,
+             :state,
+             :players,
+             :cards_list,
+             :last_flipped_indexes,
+             :turn_count,
+             :flipped_count
+           ]}
+
   defstruct id: "000000",
             deck: %MemoryBackend.Model.Deck{},
             state: :stand_by,
@@ -56,7 +68,7 @@ defmodule MemoryBackend.Game do
 
     # Strip deck from cards and scores to minimize the size of our struct in memory and over the network
 
-    deck = %MemoryBackend.Model.Deck{deck | cards: [], scores: []}
+    deck = %MemoryBackend.Model.Deck{deck | cards: [], card_back: "", scores: []}
 
     %MemoryBackend.Game{game | deck: deck, cards_list: cards_list}
   end
