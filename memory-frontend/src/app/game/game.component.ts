@@ -74,9 +74,10 @@ export class GameComponent implements OnInit {
         }
       })
     }
+    /*
     for(var i = 0; i < this.game.cards_list.length; i++){
       this.game.cards_list[i].image = this.cards[i].image;
-    }
+    }*/
   }
 
   start_game() {

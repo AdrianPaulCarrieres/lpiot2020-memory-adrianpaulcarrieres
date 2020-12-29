@@ -6,6 +6,7 @@ import * as Phoenix from 'phoenix';
 
 import { Deck } from '../models/deck.model';
 import { Game } from '../models/game.model';
+import { ThrowStmt } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,8 @@ export class ChannelService {
   private topic: String = "";
   public player_name: String = "Adrian"
   public game: Game;
+
+  public turn;
 
   constructor() {
     this.connect();
@@ -100,13 +103,16 @@ export class ChannelService {
       this.channel.on("start_game", msg => {
         var game = Game.parse_game(msg.game);
         console.log("Game has been started : " + game.state);
-        return observer.next(game);
+        this.game = game;
+        return observer.next(this.game);
       })
 
       this.channel.on("turn_played", msg => {
         var game = Game.parse_game(msg.game);
 
         console.log("turn has been played : " + game);
+        this.turn = game.turn_count;
+
         return observer.next(game);
       })
       this.channel.onClose(() => {
