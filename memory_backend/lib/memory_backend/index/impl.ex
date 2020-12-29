@@ -154,10 +154,12 @@ defmodule MemoryBackend.Index.Impl do
     end
   end
 
-  def end_game(%Game{state: :won, turn_count: score, deck: deck}) do
-    deck = %MemoryBackend.Model.Deck{deck | scores: [score]}
+  def end_game(%Game{state: :won, turn_count: turn_count, deck: deck, players: players}) do
+    players = Enum.map(players, fn x -> %MemoryBackend.Model.Player{player_name: x} end)
 
-    case MemoryBackend.Model.create_score(deck) do
+    score = %MemoryBackend.Model.Score{score: turn_count, players: players, deck_id: deck.id}
+
+    case MemoryBackend.Repo.insert(score) do
       {:ok, score = %MemoryBackend.Model.Score{}} ->
         {:ok, score}
 
@@ -174,7 +176,8 @@ defmodule MemoryBackend.Index.Impl do
       theme = deck.theme
 
       MemoryBackendWeb.Endpoint.broadcast!("game:" <> theme, "new_highscore", %{
-        deck: deck
+        deck_id: deck.id,
+        score: score.score
       })
 
       {score, true}

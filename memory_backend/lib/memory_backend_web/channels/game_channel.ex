@@ -100,13 +100,24 @@ defmodule MemoryBackendWeb.GameChannel do
         broadcast!(socket, "turn_played", %{game: game})
         {:noreply, socket}
 
-      {:ok, {:won, score}} ->
-        broadcast!(socket, "game_won", %{score: score})
+      {:ok, {:won, actual_score, is_better_than_any_high_score}} ->
+        broadcast!(socket, "game_won", %{
+          score: actual_score,
+          high_score: is_better_than_any_high_score
+        })
+
         {:noreply, socket}
 
       {:error, msg} ->
         {:reply, {:error, msg}, socket}
     end
+  end
+
+  alias Phoenix.Socket.Broadcast
+
+  def handle_info(%Broadcast{topic: _, event: event, payload: payload}, socket) do
+    push(socket, event, payload)
+    {:noreply, socket}
   end
 
   defp subscribe_to_high_scores_topics(socket, topics) do

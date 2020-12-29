@@ -55,8 +55,10 @@ export class ChannelService {
         });
 
       this.channel.on("new_highscore", resp => {
-        let deck = Deck.parse_deck(resp.deck);
-        return observer.next(deck);
+        var deck_id = resp.deck_id
+        var score = resp.score
+
+        console.log("New score for deck " + deck_id + " : " + score);
       });
     });
   }
@@ -116,13 +118,22 @@ export class ChannelService {
 
         return observer.next(game);
       })
+      this.channel.on("game_won", msg => {
+        var score = msg.score;
+        var high_score = msg.high_score
+
+        var alert = "Vous avez gagné avec un score de " + score;
+        alert += high_score ? ", et vous avez battu un score !" : ".";
+
+        return observer.complete()
+      })
       this.channel.onClose(() => {
         console.log("the channel has gone away gracefully")
-        return observer.complete()
+        return observer.error("the channel has gone away gracefully")
       })
       this.channel.on("disconnect", msg => {
         console.log("Game has been stopped. : " + msg)
-        return observer.complete();
+        return observer.complete()
       });
     });
   }
