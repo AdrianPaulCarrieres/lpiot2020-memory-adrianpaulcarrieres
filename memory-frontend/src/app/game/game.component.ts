@@ -66,6 +66,9 @@ export class GameComponent implements OnInit {
   }
 
   cardClicked(index) {
+    if (this.game.state == "stand_by"){
+      this.channelService.start_game();
+    }
     if (this.game.state == "ongoing") {
       var active_player = this.game.players[0];
       if (this.channelService.player_name != active_player) {
