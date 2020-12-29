@@ -4,7 +4,7 @@ export class Deck {
 
     id: String
     theme: String
-    card_back: String
+    card_back: String = "";
     scores: [Score]
 
 

@@ -1,7 +1,14 @@
 <div class="p-16">
-    <p class="text-center">Si vous voulez créer une partie, entrez un identifiant de partie puis clickez sur le deck de votre choix ! Autrement, entrez l'identifiant et appuyez sur "Rejoindre" !</p>
-    <div class="grid p-16">
-      <app-deck *ngFor="let c of decks; let idx=index" [deck]="decks[idx]" (deckClicked)="deckClicked(idx)">
-      </app-deck>
-    </div>
+  <p class="text-center">Si vous voulez créer une partie, entrez un identifiant de partie puis clickez sur le deck de
+    votre choix ! Autrement, entrez l'identifiant et appuyez sur "Rejoindre" !</p>
+  <div>
+    <label>Veuillez saisir un identifiant de partie :
+      <input #gameId id=game_id [(ngModel)]="game_id" placeholder="L'identifiant de la partie : " />
+    </label>
+    <button (click)="this.join_game(gameId.value)">Let's go !</button>
   </div>
+  <div class="grid p-16">
+    <app-deck *ngFor="let c of decks; let idx=index" [deck]="decks[idx]" (deckClicked)="deckClicked(idx)">
+    </app-deck>
+  </div>
+</div>

@@ -67,11 +67,11 @@ export class ChannelService {
         this.join_game(game_id);
       })
       .receive("error", err => alert(err))
-      .receive("timeout", () => alert("timed out pushing"))
+      .receive("timeout", () => alert("Create game errored : timed out pushing"))
 
   }
 
-  join_game(game_id: String): Observable<Game>{
+  join_game(game_id: String): Observable<Game> {
     return new Observable((observer: Observer<Game>) => {
       this.channel = this.socket.channel("game:" + game_id);
       this.channel.join()
@@ -89,6 +89,12 @@ export class ChannelService {
           return observer.error("unable to join");
         });
 
+      this.channel.onClose(() => {
+        console.log("the channel has gone away gracefully")
+        return observer.complete()
+      }
+
+      )
       this.channel.on("disconnect", msg => {
         console.log("Game has been stopped. : " + msg)
         return observer.complete();
@@ -108,7 +114,7 @@ export class ChannelService {
       this.channel.push("get_game", {})
         .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
-        .receive("timeout", () => alert("timed out pushing"))
+        .receive("timeout", () => alert("Get game errored : timed out pushing"))
     } else {
       alert("Not in game");
     }
@@ -119,7 +125,7 @@ export class ChannelService {
       this.channel.push("flip_card", { card_index: card_index, turn: turn })
         .receive("ok", payload => console.log("phoenix replied:", payload))
         .receive("error", err => alert(err))
-        .receive("timeout", () => alert("timed out pushing"))
+        .receive("timeout", () => alert("Flip Card errored : timed out pushing"))
     } else {
       alert("Not in game");
     }
