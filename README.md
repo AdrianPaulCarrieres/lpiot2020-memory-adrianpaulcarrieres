@@ -49,6 +49,7 @@ Une fois qu'on a installé Elixir et NodeJS on peut passer aux frameworks, depui
 
 ```bash
 mix local.hex
+mix archive.install hex phx_new 1.5.7
 ```
 
 Et pour Angular, toujours depuis un terminal :
