@@ -166,7 +166,7 @@ Le jeu utilise 5 modules différents pour fonctionner.
 
 On trouvera d'abord le module "home", il affiche un simple input pour que le joueur entre son pseudo.
 
-![image-20201229214500498](C:\Users\darkr\AppData\Roaming\Typora\typora-user-images\image-20201229214500498.png)
+![image-20201229214500498](https://drive.google.com/file/d/169V3cm3Evk0GJTL1pHypTY12hy0B-qQ0/view?usp=sharing)
 
 On utilise en effet le pseudo pour différencier le joueur au niveau des tours de jeu mais ce pseudo est seulement unique au niveau de la partie. On pourrait en effet jouer à une partie "123" avec le pseudo "Adrian" pendant que quelqu'un d'autre joue à la partie "42" avec le même pseudo.
 
